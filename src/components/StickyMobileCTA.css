@@ -1,0 +1,69 @@
+/* src/components/StickyMobileCTA.css */
+
+.sticky-cta {
+  display: flex;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: auto;
+  min-height: 60px;
+  background: var(--color-white);
+  border-top: 1px solid var(--color-ivory-dim);
+  box-shadow: 0 -4px 20px rgba(10,33,70,0.12);
+  z-index: 40;
+  padding: 8px 10px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  gap: 8px;
+  align-items: center;
+}
+
+/* Hide on desktop — product page layout is the CTA */
+@media (min-width: 1024px) { .sticky-cta { display: none; } }
+
+.sticky-cta__price {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  max-width: 80px;
+}
+.sticky-cta__amount {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: #0A2146;
+  line-height: 1.1;
+}
+.sticky-cta__label {
+  font-size: 9.5px;
+  color: var(--color-text-light);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.sticky-cta__buttons {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.sticky-cta__btn-primary,
+.sticky-cta__btn-secondary {
+  flex: 1 1 0% !important;
+  padding: 7px 4px !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  border-radius: 6px !important;
+}

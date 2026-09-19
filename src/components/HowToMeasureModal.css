@@ -1,0 +1,62 @@
+/* src/components/HowToMeasureModal.css */
+
+.measure-modal {
+  background: var(--color-white);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--sp-6) var(--sp-5);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90svh;
+  overflow-y: auto;
+  animation: slideUp var(--duration-base) var(--ease-out);
+  display: flex; flex-direction: column; gap: var(--sp-5);
+}
+@media (min-width: 768px) { .measure-modal { border-radius: var(--radius-xl); } }
+
+.measure-modal__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--color-plum);
+  font-weight: 500;
+}
+
+.measure-steps { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+.measure-step {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--sp-3);
+  align-items: start;
+}
+.measure-step__number {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-plum);
+  color: var(--color-gold);
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.measure-step__label {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  margin-bottom: var(--sp-1);
+}
+.measure-step__tip {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.measure-modal__note {
+  background: rgba(197,169,107,0.08);
+  border: 1px solid rgba(197,169,107,0.2);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--text-xs);
+  color: var(--color-gold-dim);
+  line-height: 1.6;
+}

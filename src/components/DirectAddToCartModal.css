@@ -1,0 +1,336 @@
+/* src/components/DirectAddToCartModal.css */
+
+.add-cart-modal {
+  background: var(--color-white);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 14px 16px;
+  width: 100%;
+  max-width: 480px;
+  animation: slideUp var(--duration-base) var(--ease-out);
+  max-height: 94svh;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .add-cart-modal {
+    border-radius: var(--radius-xl);
+    max-height: 85vh;
+  }
+}
+
+/* Drag Handle */
+.add-cart-modal__handle {
+  width: 36px; height: 4px;
+  background: var(--color-ivory-dim);
+  border-radius: var(--radius-full);
+  margin: 0 auto -2px;
+}
+@media (min-width: 768px) { .add-cart-modal__handle { display: none; } }
+
+/* Header */
+.add-cart-modal__header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.add-cart-modal__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  color: var(--color-plum);
+  font-weight: 500;
+}
+.add-cart-modal__close {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--color-text-light);
+  transition: all var(--duration-fast);
+}
+.add-cart-modal__close:hover {
+  background: var(--color-ivory-warm);
+  color: var(--color-plum);
+}
+
+/* Product Summary */
+.add-cart-modal__product {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px;
+  background: var(--color-ivory-warm);
+  border-radius: var(--radius-md);
+}
+.add-cart-modal__product-img {
+  width: 42px; height: 50px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-ivory-dim);
+}
+.add-cart-modal__product-img img { width: 100%; height: 100%; object-fit: cover; }
+.add-cart-modal__product-name {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  color: var(--color-plum);
+  line-height: 1.2;
+}
+.add-cart-modal__product-price {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-top: 1px;
+}
+
+/* View Fabric button inside Product card */
+.add-cart-modal__view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-plum);
+  color: var(--color-gold-light);
+  border: 1px solid var(--color-plum);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.add-cart-modal__view-btn:hover {
+  background: var(--color-plum-mid);
+  box-shadow: 0 2px 8px rgba(10, 33, 70, 0.2);
+}
+
+/* Label styling */
+.add-cart-modal__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.add-cart-modal__size-link {
+  color: var(--color-gold-dim);
+  text-decoration: underline;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+.add-cart-modal__fabric-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-gold-dim);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Horizontal Scroll Row for Fabric Cards */
+.fabric-scroll-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Vertical Rectangular Card */
+.fabric-rect-card {
+  width: 76px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.fabric-rect-card:hover {
+  transform: translateY(-1px);
+}
+
+.fabric-rect-card__image-box {
+  width: 100%;
+  height: 80px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1.5px solid var(--color-ivory-dim);
+  background: var(--color-ivory-warm);
+  position: relative;
+  box-shadow: 0 2px 4px rgba(10, 33, 70, 0.06);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.fabric-rect-card:hover .fabric-rect-card__image-box {
+  border-color: var(--color-gold);
+}
+.fabric-rect-card--active .fabric-rect-card__image-box {
+  border-color: #0A2146 !important;
+  box-shadow: 0 0 0 2px #C5A96B;
+}
+
+.fabric-rect-card__image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* View Icon Button overlay on top-right of vertical rectangle image */
+.fabric-rect-card__view-btn {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  background: rgba(10, 33, 70, 0.8);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #FFEBA3;
+  border: 1px solid rgba(197, 169, 107, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+.fabric-rect-card__view-btn:hover {
+  background: #0A2146;
+  color: #FFF;
+  transform: scale(1.1);
+}
+
+.fabric-rect-card__title {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+}
+.fabric-rect-card--active .fabric-rect-card__title {
+  color: #0A2146;
+  font-weight: 700;
+}
+
+/* Size Grid */
+.size-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+.size-btn {
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-ivory-dim);
+  background: var(--color-white);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  display: flex; align-items: center; justify-content: center;
+}
+.size-btn:hover {
+  border-color: var(--color-plum);
+  background: rgba(10,33,70,0.06);
+}
+.size-btn--active,
+.size-btn--active:hover,
+.size-btn--active:focus {
+  background: var(--color-plum) !important;
+  border-color: var(--color-plum) !important;
+  color: var(--color-gold-light) !important;
+  font-weight: 700;
+}
+
+/* Footer */
+.add-cart-modal__footer {
+  display: flex; flex-direction: column; gap: 6px; margin-top: 2px;
+}
+.add-cart-modal__total {
+  display: flex; justify-content: space-between; align-items: center;
+  font-weight: 600; font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+/* Fabric Preview Lightbox Modal Overlay */
+.fabric-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 22, 40, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  animation: fadeIn var(--duration-fast) var(--ease-out);
+}
+
+.fabric-preview-content {
+  background: var(--color-ivory);
+  border: 1.5px solid var(--color-gold);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 50px rgba(10, 33, 70, 0.4);
+  animation: scaleIn var(--duration-fast) var(--ease-out);
+}
+
+.fabric-preview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+}
+
+.fabric-preview-badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--color-gold-dim);
+  text-transform: uppercase;
+}
+
+.fabric-preview-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  color: var(--color-plum);
+  font-weight: 500;
+}
+
+.fabric-preview-close {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  background: var(--color-ivory-warm);
+  cursor: pointer;
+}
+.fabric-preview-close:hover {
+  color: var(--color-plum);
+}
+
+.fabric-preview-image-box {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-ivory-warm);
+  margin-bottom: var(--sp-3);
+  border: 1px solid var(--color-ivory-dim);
+}
+.fabric-preview-image-box img { width: 100%; height: 100%; object-fit: cover; }
+
+.fabric-preview-details {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  background: var(--color-ivory-warm);
+  padding: var(--sp-3);
+  border-radius: var(--radius-sm);
+}

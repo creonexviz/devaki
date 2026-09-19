@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F9F5ED" />
+      <stop offset="35%" stop-color="#E8A838" />
+      <stop offset="70%" stop-color="#C5A96B" />
+      <stop offset="100%" stop-color="#8E733B" />
+    </linearGradient>
+    <radialGradient id="featherEye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E8A838" />
+      <stop offset="40%" stop-color="#0A2146" />
+      <stop offset="100%" stop-color="#C5A96B" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Peacock Feather Embellishment -->
+  <g transform="translate(60, 40) scale(0.9)">
+    <!-- Outer Feather Quill -->
+    <path d="M 60 140 C 60 80, 85 40, 110 10 C 100 45, 90 85, 60 140 Z" fill="url(#goldGrad)" opacity="0.85"/>
+    <path d="M 60 140 C 45 90, 35 50, 10 20 C 35 45, 50 85, 60 140 Z" fill="url(#goldGrad)" opacity="0.6"/>
+    
+    <!-- Feather Eye -->
+    <ellipse cx="60" cy="45" rx="22" ry="28" fill="url(#featherEye)" stroke="url(#goldGrad)" stroke-width="3"/>
+    <circle cx="60" cy="45" r="10" fill="#F9F5ED" opacity="0.9"/>
+    
+    <!-- Delicate Filaments -->
+    <path d="M 60 45 Q 80 20 105 15" stroke="url(#goldGrad)" stroke-width="2" fill="none"/>
+    <path d="M 60 45 Q 90 35 115 35" stroke="url(#goldGrad)" stroke-width="2" fill="none"/>
+    <path d="M 60 45 Q 40 20 15 15" stroke="url(#goldGrad)" stroke-width="2" fill="none"/>
+    <path d="M 60 45 Q 30 35 5 35" stroke="url(#goldGrad)" stroke-width="2" fill="none"/>
+  </g>
+
+  <!-- Brand Typography -->
+  <text x="175" y="105" font-family="'Cinzel', 'Playfair Display', 'Didot', 'Georgia', serif" font-size="64" font-weight="700" letter-spacing="12" fill="url(#goldGrad)">DEVAKI</text>
+  <text x="180" y="138" font-family="'Montserrat', 'Helvetica Neue', sans-serif" font-size="14" font-weight="500" letter-spacing="16" fill="#C5A96B" opacity="0.9">INDIAN COUTURE</text>
+  
+  <line x1="178" y1="152" x2="455" y2="152" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.6"/>
+</svg>
