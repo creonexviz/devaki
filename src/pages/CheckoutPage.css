@@ -213,28 +213,46 @@
   color: var(--color-plum);
 }
 
-/* WhatsApp Place Order Button */
+/* WhatsApp Place Order Button — DEVAKI Gold Luxury Theme & Single Line */
 .btn-whatsapp-place-order {
   width: 100%;
-  padding: 14px 20px;
-  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-  color: #FFFFFF;
+  padding: 12px 10px;
+  background: linear-gradient(120deg, #A38048 0%, #C5A96B 30%, #FFEBA3 50%, #C5A96B 70%, #A38048 100%);
+  background-size: 200% 100%;
+  animation: goldBtnShine 5s linear infinite;
+  color: #061628;
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: clamp(10.5px, 2.9vw, 13px);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap !important;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+  gap: 6px;
+  box-shadow: 0 4px 16px rgba(197, 169, 107, 0.35);
   transition: all 0.25s ease;
 }
-.btn-whatsapp-place-order:hover {
-  background: linear-gradient(135deg, #22BF5B 0%, #0F7569 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+
+@media (min-width: 480px) {
+  .btn-whatsapp-place-order {
+    padding: 14px 18px;
+    font-size: 13px;
+    gap: 8px;
+  }
 }
+
+.btn-whatsapp-place-order:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(197, 169, 107, 0.5);
+}
+
+@keyframes goldBtnShine {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+

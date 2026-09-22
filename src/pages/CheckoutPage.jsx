@@ -219,7 +219,7 @@ const CheckoutPage = () => {
               type="submit"
               className="btn-whatsapp-place-order"
             >
-              <MessageSquare size={18} /> PLACE ORDER ON WHATSAPP — ₹{cartTotal.toLocaleString('en-IN')}
+              <MessageSquare size={16} style={{ flexShrink: 0 }} /> PLACE ORDER ON WHATSAPP — ₹{cartTotal.toLocaleString('en-IN')}
             </button>
           </form>
           {/* )} */}
