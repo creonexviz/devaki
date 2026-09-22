@@ -283,8 +283,12 @@
 }
 
 .saree-submit-btn {
-  font-size: var(--text-sm);
-  padding: 12px 24px;
+  font-size: 11px !important;
+  padding: 10px 16px !important;
+  letter-spacing: 0.05em !important;
+  white-space: nowrap !important;
+  text-transform: uppercase;
+  min-height: 42px;
 }
 
 /* Success Phase */

@@ -75,6 +75,23 @@ const SareeTransformationModal = ({ initialProduct = null, onClose }) => {
     // Save to Firebase & localstorage
     await saveOrderToFirebase(requestOrderPayload);
 
+    // Automatic WhatsApp redirect with order details
+    const waMessage = encodeURIComponent(
+      `Greetings DEVAKI Brand Management! 🌸\n` +
+      `I would like to submit a Saree Transformation Request (#DV${orderId}).\n\n` +
+      `• Customer Name: ${customerName.trim()}\n` +
+      `• Phone / WhatsApp: ${whatsapp.trim() || phone.trim()}\n` +
+      `• Delivery Location: ${city.trim()}\n` +
+      `• Chosen Outfit Style: ${selectedProduct?.name || 'Custom Outfit'}\n` +
+      `• Necklines: ${wizardSpecs?.neckline || 'Custom'} / ${wizardSpecs?.backNeck || 'Custom'}\n` +
+      `• Sleeves: ${wizardSpecs?.sleeves || 'Custom'}\n` +
+      `• Fit: ${wizardSpecs?.fitType === 'standard' ? `Standard Size ${wizardSpecs?.size}` : 'Custom Measurements'}\n` +
+      (notes.trim() ? `• Notes: ${notes.trim()}\n` : '') +
+      `\nPlease inspect my uploaded saree photo & confirm tailoring details!`
+    );
+    const waUrl = `https://wa.me/918555074387?text=${waMessage}`;
+    window.open(waUrl, '_blank');
+
     setIsSubmitting(false);
     setSubmittedOrder(requestOrderPayload);
     setStep('success');

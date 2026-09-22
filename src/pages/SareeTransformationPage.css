@@ -350,14 +350,25 @@
   }
 }
 
-.saree-btn-back,
+.saree-btn-back {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+  padding: 10px 16px;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
 .saree-btn-submit {
   width: 100%;
   text-align: center;
   justify-content: center;
-  padding: 13px 20px;
-  font-size: 13px;
+  padding: 10px 14px !important;
+  font-size: 11px !important;
+  letter-spacing: 0.04em !important;
+  white-space: nowrap !important;
   box-sizing: border-box;
+  min-height: 42px;
 }
 @media (min-width: 640px) {
   .saree-btn-back {
@@ -365,6 +376,8 @@
   }
   .saree-btn-submit {
     width: auto;
+    font-size: 12px !important;
+    padding: 10px 20px !important;
   }
 }
 
