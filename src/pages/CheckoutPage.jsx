@@ -229,24 +229,36 @@ const CheckoutPage = () => {
         <div className="order-summary">
           <div className="order-summary__header">Order Summary</div>
           <div className="order-summary__items">
-            {cartItems.map(item => (
-              <div key={item.cartId} className="order-summary__item">
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span className="order-summary__item-name" style={{ fontWeight: 600 }}>{item.productName}</span>
-                  {item.fabric && (
-                    <span style={{ fontSize: '11px', color: 'var(--color-gold-dim)' }}>Fabric: {item.fabric}</span>
-                  )}
-                  {item.type === 'custom' ? (
-                    <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
-                      {item.neckline} · {item.sleeves} · {item.fitType === 'custom' ? 'Made-to-Measure Custom Fit' : `Size ${item.size}`}
-                    </span>
-                  ) : (
-                    item.size && <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>Size: {item.size}</span>
-                  )}
+            {cartItems.map(item => {
+              const itemImg = item.image || item.images?.[0] || null;
+              return (
+                <div key={item.cartId} className="order-summary__item">
+                  <div className="order-summary__item-img">
+                    {itemImg ? (
+                      <img src={itemImg} alt={item.productName} />
+                    ) : (
+                      <div className="order-summary__item-img-placeholder" />
+                    )}
+                  </div>
+                  <div className="order-summary__item-details">
+                    <span className="order-summary__item-name">{item.productName}</span>
+                    {item.fabric && (
+                      <span className="order-summary__item-meta" style={{ color: 'var(--color-gold-dim)' }}>
+                        Fabric: {item.fabric}
+                      </span>
+                    )}
+                    {item.type === 'custom' ? (
+                      <span className="order-summary__item-meta">
+                        {item.neckline} · {item.sleeves} · {item.fitType === 'custom' ? 'Made-to-Measure Custom Fit' : `Size ${item.size}`}
+                      </span>
+                    ) : (
+                      item.size && <span className="order-summary__item-meta">Size: {item.size}</span>
+                    )}
+                  </div>
+                  <span className="order-summary__item-price">₹{item.finalPrice.toLocaleString('en-IN')}</span>
                 </div>
-                <span className="order-summary__item-price">₹{item.finalPrice.toLocaleString('en-IN')}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="order-summary__total">
             <span>Total</span>
