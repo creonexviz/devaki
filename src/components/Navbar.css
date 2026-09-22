@@ -48,30 +48,47 @@
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .navbar__logo-icon {
-  height: 54px;
+  height: 48px;
   width: auto;
   object-fit: contain;
   mix-blend-mode: multiply;
   filter: drop-shadow(0 2px 4px rgba(10, 33, 70, 0.25));
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .navbar__logo-icon {
+    height: 54px;
+  }
 }
 
 .navbar__brand-text {
   display: flex;
   flex-direction: column;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 /* DEVAKI Logo in Crisp Deep Navy on Gold background */
 .navbar__logo {
   font-family: var(--font-heading);
-  font-size: var(--text-xl);
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   color: #0A2146;
   text-shadow: 0 1px 2px rgba(255, 244, 212, 0.6);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .navbar__logo {
+    font-size: var(--text-xl);
+    letter-spacing: 0.22em;
+  }
 }
 
 /* Subtext Tagline */
@@ -83,13 +100,15 @@
   margin-top: 1px;
   opacity: 0.9;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Actions Wrapper */
 .navbar__actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 /* Cart Icon directly in Navbar */
@@ -105,6 +124,7 @@
   border-radius: 0 !important;
   transition: opacity var(--duration-fast);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .navbar__icon-btn:hover {
@@ -127,7 +147,7 @@
   box-shadow: 0 2px 6px rgba(10, 33, 70, 0.35);
 }
 
-/* Menu Toggle Button */
+/* Menu Toggle Button: Hidden on Desktop (>=1024px) */
 .navbar__menu-toggle {
   position: relative;
   width: 36px;
@@ -143,6 +163,13 @@
   border-radius: 0 !important;
   cursor: pointer;
   transition: opacity var(--duration-fast);
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .navbar__menu-toggle {
+    display: none !important;
+  }
 }
 
 .navbar__menu-toggle:hover,
@@ -272,36 +299,50 @@
   margin: 6px 0;
 }
 
-/* Category Navigation Menu Bar (Desktop) */
+/* Category Navigation Menu Bar (Desktop >= 1024px) */
 .navbar__categories {
   display: none;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .navbar__categories {
     display: flex;
     align-items: center;
-    gap: var(--sp-3);
-    margin: 0 var(--sp-4);
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 0 12px;
+    flex: 1;
+    min-width: 0;
   }
 }
 
 .navbar__cat-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #0A2146;
   background: rgba(10, 33, 70, 0.08);
   border: 1px solid rgba(10, 33, 70, 0.2);
-  padding: 5px 10px;
+  padding: 4px 8px;
   border-radius: var(--radius-full);
   transition: all var(--duration-fast) var(--ease-out);
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1280px) {
+  .navbar__categories {
+    gap: 8px;
+  }
+  .navbar__cat-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
 }
 
 .navbar__cat-btn:hover {
@@ -330,12 +371,13 @@
 .navbar__bm-badge {
   font-size: 8px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   background: linear-gradient(120deg, #8C6C3E 0%, #C5A96B 50%, #8C6C3E 100%);
   color: #061628;
   padding: 2px 5px;
   border-radius: var(--radius-full);
   line-height: 1;
+  white-space: nowrap;
 }
 
 /* Page offset for navbar */

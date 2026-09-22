@@ -96,7 +96,7 @@ const Navbar = () => {
               className="navbar__cat-btn"
               style={{ color: '#0A2146', fontWeight: 700 }}
             >
-              <Phone size={13} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} /> Call / WhatsApp: 8555074387
+              <Phone size={12} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '3px' }} /> Call / WhatsApp
             </a>
 
             {/* FUTURE AUTH LINKS (Commented for simplified direct WhatsApp ordering):
