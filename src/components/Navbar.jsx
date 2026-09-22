@@ -59,27 +59,29 @@ const Navbar = () => {
               className={`navbar__cat-btn${location.pathname === '/' ? ' navbar__cat-btn--active' : ''}`}
               onClick={() => navigate('/')}
             >
-              Home
+              <Home size={13} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+              <span>Home</span>
             </button>
             <button
               className={`navbar__cat-btn${location.pathname === '/collection' ? ' navbar__cat-btn--active' : ''}`}
               onClick={() => navigate('/collection')}
             >
-              The Collection
+              <Layers size={13} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+              <span>The Collection</span>
             </button>
             <button
               className={`navbar__cat-btn${location.pathname === '/saree-transformation' ? ' navbar__cat-btn--active' : ''}`}
               onClick={() => navigate('/saree-transformation')}
               style={{ background: location.pathname === '/saree-transformation' ? 'var(--color-gold)' : 'rgba(197,169,107,0.15)', borderColor: 'var(--color-gold)', color: location.pathname === '/saree-transformation' ? '#061628' : 'var(--color-plum)' }}
             >
-              <Scissors size={13} color={location.pathname === '/saree-transformation' ? '#061628' : 'var(--color-gold)'} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} />
+              <Scissors size={13} color={location.pathname === '/saree-transformation' ? '#061628' : 'var(--color-gold)'} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
               <span>Saree Transformation</span>
-              <span className="navbar__bm-badge" style={{ background: 'var(--color-gold)', color: '#061628' }}>Your Saree → Outfit</span>
             </button>
             <button
               className="navbar__cat-btn navbar__cat-btn--bm"
               onClick={() => setShowBridesmaidModal(true)}
             >
+              <Crown size={13} color="var(--color-gold)" style={{ display: 'inline-block', verticalAlign: 'middle' }} />
               <span>Bridesmaid</span>
               <span className="navbar__bm-badge">Coming Soon</span>
             </button>
@@ -87,69 +89,24 @@ const Navbar = () => {
               className={`navbar__cat-btn${location.pathname === '/track-order' ? ' navbar__cat-btn--active' : ''}`}
               onClick={() => navigate('/track-order')}
             >
-              <Truck size={13} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }} /> Track Order
+              <Truck size={13} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+              <span>Track Order</span>
             </button>
+          </div>
+
+          {/* Navbar Actions: Phone WhatsApp Icon + Cart Icon + Menu Toggle */}
+          <div className="navbar__actions">
+            {/* Direct Call / WhatsApp Icon Button */}
             <a
               href="https://wa.me/918555074387"
               target="_blank"
               rel="noopener noreferrer"
-              className="navbar__cat-btn"
-              style={{ color: '#0A2146', fontWeight: 700 }}
+              className="navbar__icon-btn"
+              title="Call / WhatsApp: 8555074387"
+              aria-label="Call or WhatsApp Concierge"
             >
-              <Phone size={12} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '3px' }} /> Call / WhatsApp
+              <Phone size={19} />
             </a>
-
-            {/* FUTURE AUTH LINKS (Commented for simplified direct WhatsApp ordering):
-            {user ? (
-              <>
-                <button
-                  className={`navbar__cat-btn${location.pathname === '/orders' ? ' navbar__cat-btn--active' : ''}`}
-                  onClick={() => navigate('/orders')}
-                >
-                  <User size={13} style={{ display: 'inline', marginRight: '3px' }} />
-                  Account ({user.name || user.email.split('@')[0]})
-                </button>
-                <button
-                  className="navbar__cat-btn navbar__cat-btn--logout"
-                  onClick={handleLogout}
-                  title="Sign Out"
-                >
-                  <LogOut size={12} style={{ display: 'inline', marginRight: '3px' }} />
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  className={`navbar__cat-btn${location.pathname === '/orders' && !location.search.includes('mode=register') ? ' navbar__cat-btn--active' : ''}`}
-                  onClick={() => navigate('/orders?mode=login')}
-                >
-                  <LogIn size={13} style={{ display: 'inline', marginRight: '3px' }} />
-                  Sign In
-                </button>
-                <button
-                  className={`navbar__cat-btn${location.pathname === '/orders' && location.search.includes('mode=register') ? ' navbar__cat-btn--active' : ''}`}
-                  onClick={() => navigate('/orders?mode=register')}
-                >
-                  <UserPlus size={13} style={{ display: 'inline', marginRight: '3px' }} />
-                  Sign Up / Register
-                </button>
-              </>
-            )}
-            */}
-          </div>
-
-          {/* Navbar Actions: Cart Icon + Menu Icon */}
-          <div className="navbar__actions">
-            {/* FUTURE USER ICON:
-            <button
-              className={`navbar__icon-btn${location.pathname === '/orders' ? ' navbar__icon-btn--active' : ''}`}
-              onClick={() => navigate(user ? '/orders' : '/orders?mode=login')}
-              aria-label="Account"
-            >
-              <User size={20} />
-            </button>
-            */}
 
             {/* Cart Icon in Navbar */}
             <button
