@@ -191,28 +191,41 @@ const Navbar = () => {
                   className={`menu-panel-item${location.pathname === '/' ? ' active' : ''}`}
                   onClick={() => { navigate('/'); setIsMenuOpen(false); }}
                 >
-                  <Home size={18} /> Home
+                  <div className="menu-panel-item__left">
+                    <Home size={18} />
+                    <span>Home</span>
+                  </div>
                 </button>
 
                 <button
                   className={`menu-panel-item${location.pathname === '/collection' ? ' active' : ''}`}
                   onClick={() => { navigate('/collection'); setIsMenuOpen(false); }}
                 >
-                  <Layers size={18} /> The Collection
+                  <div className="menu-panel-item__left">
+                    <Layers size={18} />
+                    <span>The Collection</span>
+                  </div>
                 </button>
 
                 <button
                   className={`menu-panel-item${location.pathname === '/saree-transformation' ? ' active' : ''}`}
                   onClick={() => { navigate('/saree-transformation'); setIsMenuOpen(false); }}
                 >
-                  <Scissors size={18} /> Saree Transformation
+                  <div className="menu-panel-item__left">
+                    <Scissors size={18} />
+                    <span>Saree Transformation</span>
+                  </div>
                   <span className="menu-panel-badge" style={{ background: 'var(--color-gold)', color: '#061628' }}>Your Saree → Outfit</span>
                 </button>
+
                 <button
                   className="menu-panel-item menu-panel-item--bm"
                   onClick={() => { setShowBridesmaidModal(true); setIsMenuOpen(false); }}
                 >
-                  <Crown size={18} color="var(--color-gold)" /> Bridesmaid Couture
+                  <div className="menu-panel-item__left">
+                    <Crown size={18} color="var(--color-gold)" />
+                    <span>Bridesmaid Couture</span>
+                  </div>
                   <span className="menu-panel-badge">Coming Soon</span>
                 </button>
 
@@ -220,7 +233,10 @@ const Navbar = () => {
                   className={`menu-panel-item${location.pathname === '/track-order' ? ' active' : ''}`}
                   onClick={() => { navigate('/track-order'); setIsMenuOpen(false); }}
                 >
-                  <Truck size={18} /> Track Order
+                  <div className="menu-panel-item__left">
+                    <Truck size={18} />
+                    <span>Track Order</span>
+                  </div>
                 </button>
 
                 {/* FUTURE AUTH ITEMS IN MOBILE MENU:

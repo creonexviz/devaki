@@ -206,10 +206,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
-  padding: 10px 6px;
-  border-radius: 0 !important;
+  padding: 10px 8px;
+  border-radius: 6px !important;
   color: #FFF4D4;
   font-size: 14px;
   font-weight: 500;
@@ -224,9 +224,15 @@
   white-space: nowrap;
 }
 
+.menu-panel-item__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .menu-panel-item:hover,
 .menu-panel-item.active {
-  background: transparent !important;
+  background: rgba(197, 169, 107, 0.12) !important;
   color: #FFFFFF;
   transform: translateX(4px);
 }
