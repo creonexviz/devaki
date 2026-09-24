@@ -16,6 +16,7 @@ import { MOCK_PRODUCTS, getStockLabel, getStoredProducts } from '../data/product
 import {
   subscribeToAllOrders,
   updateOrderStatusInFirebase,
+  deleteOrderFromFirebase,
   subscribeToProducts,
   saveProductToFirebase,
   deleteProductFromFirebase,
@@ -531,8 +532,9 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
     askConfirm(
       'Remove Order',
       `Are you sure you want to remove customer order #${id}? This action cannot be undone.`,
-      () => {
-        saveOrders(orders.filter(o => o.id !== id));
+      async () => {
+        setOrders(prev => prev.filter(o => o.id !== id));
+        await deleteOrderFromFirebase(id);
         triggerToast(`Order #${id} removed from workflow`, 'info', 'Order Removed');
       }
     );

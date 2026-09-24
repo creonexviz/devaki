@@ -281,6 +281,31 @@ export const updateOrderStatusInFirebase = async (orderId, newStatus) => {
   }
 };
 
+/**
+ * Delete order from Firestore & sync local storage (Admin Panel action).
+ */
+export const deleteOrderFromFirebase = async (orderId) => {
+  try {
+    const saved = JSON.parse(localStorage.getItem('devaki_orders') || '[]');
+    const updated = saved.filter(o => o.id !== orderId);
+    localStorage.setItem('devaki_orders', JSON.stringify(updated));
+
+    const userSaved = JSON.parse(localStorage.getItem('devaki_user_orders') || '[]');
+    const userUpdated = userSaved.filter(o => o.id !== orderId);
+    localStorage.setItem('devaki_user_orders', JSON.stringify(userUpdated));
+
+    window.dispatchEvent(new Event('devaki_orders_updated'));
+  } catch (e) {}
+
+  try {
+    await deleteDoc(doc(db, 'orders', orderId));
+    if (rtdb) await removeRtdb(ref(rtdb, `orders/${orderId}`));
+    console.log(`[Firebase] Order #${orderId} deleted successfully`);
+  } catch (err) {
+    console.warn('[Firebase] Firestore order delete fallback:', err);
+  }
+};
+
 // ── PURCHASE REQUESTS / ENQUIRIES ─────────────────────────────
 
 /**
