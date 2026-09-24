@@ -427,3 +427,101 @@ export const logoutFromFirebase = async () => {
   localStorage.removeItem('devaki_user');
   window.dispatchEvent(new Event('devaki_auth_change'));
 };
+
+// ── COUPONS SYNC ──────────────────────────────────────────────
+
+export const DEFAULT_COUPONS = [
+  {
+    id: 'c_firstorder',
+    code: 'FIRSTORDER',
+    discountType: 'flat', // 'flat' (₹) or 'percentage' (%)
+    discountValue: 500,
+    minOrderValue: 0,
+    isActive: true,
+    description: 'Welcome Offer — ₹500 OFF on your first couture order!'
+  }
+];
+
+export const getStoredCoupons = () => {
+  try {
+    const saved = localStorage.getItem('devaki_coupons');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+  return DEFAULT_COUPONS;
+};
+
+export const subscribeToCoupons = (callback) => {
+  try {
+    const cached = getStoredCoupons();
+    if (cached && callback) callback(cached);
+
+    const couponsRef = collection(db, 'coupons');
+    return onSnapshot(couponsRef, (snapshot) => {
+      if (snapshot.empty) {
+        localStorage.setItem('devaki_coupons', JSON.stringify(DEFAULT_COUPONS));
+        if (callback) callback(DEFAULT_COUPONS);
+        return;
+      }
+
+      const list = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      }));
+
+      localStorage.setItem('devaki_coupons', JSON.stringify(list));
+      window.dispatchEvent(new Event('devaki_coupons_updated'));
+      if (callback) callback(list);
+    }, (err) => {
+      const fallback = getStoredCoupons();
+      if (callback) callback(fallback);
+    });
+  } catch (err) {
+    const fallback = getStoredCoupons();
+    if (callback) callback(fallback);
+    return () => {};
+  }
+};
+
+export const saveCouponToFirebase = async (couponData) => {
+  const couponId = couponData.id || `coupon_${Date.now()}`;
+  const cleanCoupon = {
+    ...couponData,
+    id: couponId,
+    code: (couponData.code || 'COUPON').trim().toUpperCase(),
+    discountType: couponData.discountType || 'flat',
+    discountValue: Number(couponData.discountValue || 0),
+    minOrderValue: Number(couponData.minOrderValue || 0),
+    isActive: couponData.isActive !== false,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    const current = getStoredCoupons();
+    const exists = current.some(c => c.id === couponId);
+    const updated = exists ? current.map(c => c.id === couponId ? cleanCoupon : c) : [cleanCoupon, ...current];
+    localStorage.setItem('devaki_coupons', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_coupons_updated'));
+  } catch (e) {}
+
+  try {
+    await setDoc(doc(db, 'coupons', couponId), cleanCoupon, { merge: true });
+  } catch (err) {}
+
+  return cleanCoupon;
+};
+
+export const deleteCouponFromFirebase = async (couponId) => {
+  try {
+    const current = getStoredCoupons();
+    const updated = current.filter(c => c.id !== couponId);
+    localStorage.setItem('devaki_coupons', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_coupons_updated'));
+  } catch (e) {}
+
+  try {
+    await deleteDoc(doc(db, 'coupons', couponId));
+  } catch (err) {}
+};

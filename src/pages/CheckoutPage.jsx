@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, MessageSquare } from 'lucide-react';
+import { CheckCircle, MessageSquare, Tag, CheckCircle2, X, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-// import AuthCard from '../components/AuthCard'; // Commented out for future reference
 import { saveOrderToFirebase } from '../services/firebaseService';
 import './CheckoutPage.css';
 
 const CheckoutPage = () => {
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const {
+    cartItems, cartTotal, clearCart,
+    appliedCoupon, applyCoupon, removeCoupon, discountAmount, finalTotal
+  } = useCart();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -19,6 +21,8 @@ const CheckoutPage = () => {
     state: ''
   });
   const [placedOrder, setPlacedOrder] = useState(null);
+  const [couponInput, setCouponInput] = useState('');
+  const [couponNotice, setCouponNotice] = useState(null);
 
   // Pre-fill saved customer info if available in local state
   useEffect(() => {
@@ -62,10 +66,16 @@ const CheckoutPage = () => {
       } else {
         if (item.size) msg += `• Size: ${item.size}\n`;
       }
-      msg += `• Price: ₹${Number(item.finalPrice || item.basePrice).toLocaleString('en-IN')}\n\n`;
+      msg += `• Item Price: ₹${Number(item.finalPrice || item.basePrice).toLocaleString('en-IN')}\n\n`;
     });
 
-    msg += `*TOTAL AMOUNT: ₹${Number(order.finalPrice).toLocaleString('en-IN')}*\n\n`;
+    msg += `*PRICE & PAYMENT SUMMARY:*\n`;
+    msg += `• Subtotal: ₹${Number(order.subtotal || order.cartTotal).toLocaleString('en-IN')}\n`;
+    if (order.couponCode) {
+      msg += `• Coupon Applied (${order.couponCode}): -₹${Number(order.discountAmount).toLocaleString('en-IN')}\n`;
+    }
+    msg += `• Shipping Charges: FREE (All India)\n`;
+    msg += `*TOTAL AMOUNT PAYABLE: ₹${Number(order.finalPrice).toLocaleString('en-IN')}*\n\n`;
     msg += `Please confirm my order and send payment details. Thank you!`;
 
     return encodeURIComponent(msg);
@@ -89,8 +99,12 @@ const CheckoutPage = () => {
       fitType: firstItem.fitType || 'standard',
       measurements: firstItem.measurements || null,
       selectionsSummary: firstItem.selectionsSummary || null,
-      finalPrice: cartTotal,
-      status: 'pending',
+      cartTotal: cartTotal,
+      subtotal: cartTotal,
+      couponCode: appliedCoupon?.code || null,
+      discountAmount: discountAmount || 0,
+      finalPrice: finalTotal,
+      status: 'whatsappSent',
       createdAt: new Date().toISOString(),
       customer: {
         name: form.name,
@@ -118,6 +132,13 @@ const CheckoutPage = () => {
     window.open(waUrl, '_blank');
   };
 
+  const handleApplyCoupon = (e) => {
+    e.preventDefault();
+    const res = applyCoupon(couponInput);
+    setCouponNotice(res);
+    if (res.success) setCouponInput('');
+  };
+
   if (cartItems.length === 0 && !placedOrder) return (
     <div className="checkout-page">
       <div style={{ textAlign: 'center', padding: 'var(--sp-16) 0' }}>
@@ -141,7 +162,7 @@ const CheckoutPage = () => {
           Order Sent to WhatsApp!
         </h2>
         <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-md)', lineHeight: 1.5 }}>
-          DEVAKI team will contact you. Please do payment to confirm your order.
+          DEVAKI team will contact you shortly. Please complete payment to confirm your order.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '340px', marginTop: 'var(--sp-4)' }}>
@@ -169,11 +190,6 @@ const CheckoutPage = () => {
 
         {/* Simple & Direct Delivery Address Form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-5)' }}>
-          {/* COMMENTED AUTH GATE FOR FUTURE REFERENCE:
-          {!user ? (
-            <AuthCard onAuthenticated={(u) => setUser(u)} />
-          ) : (
-          */}
           <form onSubmit={handlePlaceWhatsApp} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-5)' }}>
             <div className="checkout-section">
               <p className="checkout-section__title">Delivery Address &amp; Contact</p>
@@ -219,10 +235,9 @@ const CheckoutPage = () => {
               type="submit"
               className="btn-whatsapp-place-order"
             >
-              <MessageSquare size={16} style={{ flexShrink: 0 }} /> PLACE ORDER ON WHATSAPP — ₹{cartTotal.toLocaleString('en-IN')}
+              <MessageSquare size={16} style={{ flexShrink: 0 }} /> PLACE ORDER ON WHATSAPP — ₹{finalTotal.toLocaleString('en-IN')}
             </button>
           </form>
-          {/* )} */}
         </div>
 
         {/* Order Summary */}
@@ -260,9 +275,65 @@ const CheckoutPage = () => {
               );
             })}
           </div>
+
+          {/* Interactive Coupon Box on Checkout */}
+          <div style={{ padding: 'var(--sp-3) var(--sp-4)', borderTop: '1px solid var(--color-ivory-dim)', background: 'var(--color-ivory-warm)' }}>
+            {appliedCoupon ? (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckCircle2 size={15} color="#4CAF78" />
+                  <span style={{ fontWeight: 700, color: '#4CAF78', fontSize: '12px' }}>
+                    Coupon {appliedCoupon.code} Applied ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% OFF` : `₹${appliedCoupon.discountValue} OFF`})
+                  </span>
+                </div>
+                <button onClick={removeCoupon} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center' }}>
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: '6px' }}>
+                <input
+                  type="text"
+                  placeholder="Coupon Code (e.g. FIRSTORDER)"
+                  value={couponInput}
+                  onChange={e => setCouponInput(e.target.value.toUpperCase())}
+                  style={{ flex: 1, padding: '6px 10px', fontSize: '12px', border: '1px solid var(--color-ivory-dim)', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 700, outline: 'none' }}
+                />
+                <button type="submit" className="btn btn-primary" style={{ fontSize: '11px', padding: '6px 12px' }}>
+                  Apply
+                </button>
+              </form>
+            )}
+            {couponNotice && (
+              <p style={{ fontSize: '11px', marginTop: '4px', color: couponNotice.success ? '#4CAF78' : '#C84848', fontWeight: 600 }}>
+                {couponNotice.message}
+              </p>
+            )}
+          </div>
+
+          {/* Detailed Totals Breakdown */}
+          <div style={{ padding: 'var(--sp-3) var(--sp-4)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--color-text-muted)' }}>
+              <span>Subtotal</span>
+              <span>₹{cartTotal.toLocaleString('en-IN')}</span>
+            </div>
+
+            {discountAmount > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#4CAF78', fontWeight: 600 }}>
+                <span>Coupon Discount ({appliedCoupon?.code})</span>
+                <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#4CAF78', fontWeight: 600 }}>
+              <span>Shipping Charges</span>
+              <span>FREE</span>
+            </div>
+          </div>
+
           <div className="order-summary__total">
-            <span>Total</span>
-            <span className="order-summary__total-price">₹{cartTotal.toLocaleString('en-IN')}</span>
+            <span>Total Payable</span>
+            <span className="order-summary__total-price">₹{finalTotal.toLocaleString('en-IN')}</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 // src/components/Footer.jsx
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, MessageCircle, AlertCircle, Globe, Download } from 'lucide-react';
+import { Mail, Phone, MapPin, MessageCircle, AlertCircle, Globe, Download, Truck } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import './Footer.css';
 
@@ -25,6 +25,9 @@ const Footer = () => {
             <span className="footer__logo">DEVAKI</span>
           </Link>
           <span className="footer__tagline">Online Store Only · From Telangana</span>
+          <div style={{ margin: '4px 0', display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(197,169,107,0.12)', border: '1px solid rgba(197,169,107,0.3)', padding: '4px 10px', borderRadius: '4px', color: 'var(--color-gold)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', width: 'fit-content' }}>
+            <Truck size={13} color="var(--color-gold)" /> FREE SHIPPING ON ALL ORDERS (ALL INDIA)
+          </div>
           <p className="footer__desc">
             DEVAKI — Online Store Only, From Telangana.
             Thoughtfully crafted limited edition Indian couture blouses.

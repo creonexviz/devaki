@@ -1,5 +1,6 @@
 // src/components/CartDrawer.jsx
-import { X, ShoppingBag } from 'lucide-react';
+import { useState } from 'react';
+import { X, ShoppingBag, Tag, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import './CartDrawer.css';
@@ -76,10 +77,22 @@ const CartItem = ({ item, onRemove }) => {
 };
 
 const CartDrawer = () => {
-  const { isCartOpen, setIsCartOpen, cartItems, cartTotal, removeFromCart } = useCart();
+  const {
+    isCartOpen, setIsCartOpen, cartItems, cartTotal, removeFromCart,
+    appliedCoupon, applyCoupon, removeCoupon, discountAmount, finalTotal
+  } = useCart();
   const navigate = useNavigate();
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [couponNotice, setCouponNotice] = useState(null);
 
   if (!isCartOpen) return null;
+
+  const handleApplyCouponForm = (e) => {
+    e.preventDefault();
+    const result = applyCoupon(couponCodeInput);
+    setCouponNotice(result);
+    if (result.success) setCouponCodeInput('');
+  };
 
   return (
     <>
@@ -120,18 +133,74 @@ const CartDrawer = () => {
                 <CartItem key={item.cartId} item={item} onRemove={removeFromCart} />
               ))}
             </div>
+
             <div className="cart-drawer__footer">
-              <div className="cart-drawer__subtotal">
-                <span>Total</span>
-                <span className="cart-drawer__subtotal-amount">₹{cartTotal.toLocaleString('en-IN')}</span>
+              {/* Interactive Coupon Box */}
+              <div className="cart-drawer__coupon-box">
+                {appliedCoupon ? (
+                  <div className="cart-drawer__coupon-applied">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={15} color="#4CAF78" />
+                      <span style={{ fontWeight: 700, color: '#4CAF78', fontSize: '12px' }}>
+                        {appliedCoupon.code} Applied ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% OFF` : `₹${appliedCoupon.discountValue} OFF`})
+                      </span>
+                    </div>
+                    <button className="cart-drawer__coupon-remove" onClick={removeCoupon} aria-label="Remove coupon">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleApplyCouponForm} className="cart-drawer__coupon-form">
+                    <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
+                      <input
+                        type="text"
+                        placeholder="Coupon (Try: FIRSTORDER)"
+                        value={couponCodeInput}
+                        onChange={e => setCouponCodeInput(e.target.value.toUpperCase())}
+                        className="cart-drawer__coupon-input"
+                      />
+                      <button type="submit" className="cart-drawer__coupon-btn">
+                        Apply
+                      </button>
+                    </div>
+                  </form>
+                )}
+                {couponNotice && (
+                  <p style={{ fontSize: '11px', marginTop: '4px', color: couponNotice.success ? '#4CAF78' : '#C84848', fontWeight: 600 }}>
+                    {couponNotice.message}
+                  </p>
+                )}
               </div>
+
+              <div className="cart-drawer__subtotal" style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>
+                <span>Subtotal</span>
+                <span>₹{cartTotal.toLocaleString('en-IN')}</span>
+              </div>
+
+              {discountAmount > 0 && (
+                <div className="cart-drawer__subtotal" style={{ color: '#4CAF78', fontSize: '13px' }}>
+                  <span>Coupon Discount ({appliedCoupon?.code})</span>
+                  <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+
+              <div className="cart-drawer__subtotal" style={{ color: '#4CAF78', fontSize: '12px' }}>
+                <span>Shipping Charges</span>
+                <span>FREE</span>
+              </div>
+
+              <div className="cart-drawer__subtotal" style={{ borderTop: '1px solid var(--color-ivory-dim)', paddingTop: '8px', marginTop: '4px' }}>
+                <span>Total</span>
+                <span className="cart-drawer__subtotal-amount">₹{finalTotal.toLocaleString('en-IN')}</span>
+              </div>
+
               <button
                 id="checkout-btn"
                 className="btn btn-gold"
                 style={{ width: '100%', padding: 'var(--sp-4)', fontSize: 'var(--text-base)' }}
                 onClick={() => { setIsCartOpen(false); navigate('/checkout'); }}
               >
-                Proceed to Checkout
+                Proceed to Checkout — ₹{finalTotal.toLocaleString('en-IN')}
               </button>
               <p className="cart-drawer__note">
                 First-come, first-served · Pieces are secured upon successful payment.

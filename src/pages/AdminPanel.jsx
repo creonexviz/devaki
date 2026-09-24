@@ -10,7 +10,7 @@ import {
   Sparkles, Phone, CheckCircle, AlertCircle, Users, Printer,
   ArrowRight, Search, Filter, PlusCircle, Trash2, ShieldCheck, DollarSign,
   Camera, Sliders, Eye, EyeOff, Clock, AlertTriangle, CheckCircle2, X,
-  Menu, Store, ChevronRight, Scissors
+  Menu, Store, ChevronRight, Scissors, Tag, Percent
 } from 'lucide-react';
 import { MOCK_PRODUCTS, getStockLabel, getStoredProducts } from '../data/products';
 import {
@@ -22,7 +22,10 @@ import {
   deleteProductFromFirebase,
   subscribeToPurchaseRequests,
   savePurchaseRequestToFirebase,
-  saveOrderToFirebase
+  saveOrderToFirebase,
+  subscribeToCoupons,
+  saveCouponToFirebase,
+  deleteCouponFromFirebase
 } from '../services/firebaseService';
 import { compressImage } from '../utils/imageCompressor';
 import './AdminPanel.css';
@@ -1845,11 +1848,257 @@ const StockTab = ({ triggerToast, askConfirm, onEditProduct }) => {
   );
 };
 
+// ── 6. COUPON CODES & DISCOUNT MANAGEMENT TAB ─────────────────
+const CouponsTab = ({ triggerToast }) => {
+  const [coupons, setCoupons] = useState([]);
+  const [form, setForm] = useState({
+    id: null,
+    code: '',
+    discountType: 'flat', // 'flat' (₹) or 'percentage' (%)
+    discountValue: '',
+    minOrderValue: '0',
+    isActive: true,
+    description: ''
+  });
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToCoupons((liveCoupons) => {
+      if (liveCoupons && Array.isArray(liveCoupons)) {
+        setCoupons(liveCoupons);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleSaveCoupon = async (e) => {
+    e.preventDefault();
+    if (!form.code.trim() || !form.discountValue) {
+      triggerToast('Please enter coupon code and discount value', 'error');
+      return;
+    }
+
+    const savedObj = await saveCouponToFirebase(form);
+    triggerToast(`Coupon ${savedObj.code} saved successfully!`, 'success');
+    resetForm();
+  };
+
+  const handleEditCoupon = (c) => {
+    setForm({
+      id: c.id,
+      code: c.code,
+      discountType: c.discountType || 'flat',
+      discountValue: c.discountValue,
+      minOrderValue: c.minOrderValue || 0,
+      isActive: c.isActive !== false,
+      description: c.description || ''
+    });
+    setIsEditing(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleToggleActive = async (c) => {
+    const updated = { ...c, isActive: !c.isActive };
+    await saveCouponToFirebase(updated);
+    triggerToast(`Coupon ${c.code} ${updated.isActive ? 'activated' : 'deactivated'}`, 'info');
+  };
+
+  const handleDeleteCoupon = async (c) => {
+    await deleteCouponFromFirebase(c.id);
+    triggerToast(`Coupon ${c.code} deleted`, 'info');
+  };
+
+  const resetForm = () => {
+    setForm({
+      id: null,
+      code: '',
+      discountType: 'flat',
+      discountValue: '',
+      minOrderValue: '0',
+      isActive: true,
+      description: ''
+    });
+    setIsEditing(false);
+  };
+
+  return (
+    <div>
+      <h2 className="admin-section-title" style={{ marginBottom: 'var(--sp-5)' }}>
+        Coupon Codes &amp; Discount Management
+      </h2>
+
+      {/* Coupon Creation / Edit Form */}
+      <div className="admin-card" style={{ marginBottom: 'var(--sp-6)', padding: 'var(--sp-5)' }}>
+        <h3 style={{ fontSize: '15px', color: 'var(--color-gold)', marginBottom: '14px', fontFamily: 'var(--font-heading)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Tag size={16} /> {isEditing ? `Edit Coupon Code: ${form.code}` : 'Create New Coupon Code'}
+        </h3>
+
+        <form onSubmit={handleSaveCoupon} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
+            <div>
+              <label style={{ fontSize: '11px', color: 'rgba(250,247,242,0.6)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                Coupon Code Name *
+              </label>
+              <input
+                type="text"
+                className="admin-input"
+                required
+                placeholder="e.g. FIRSTORDER, FESTIVE20"
+                value={form.code}
+                onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
+                style={{ textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '11px', color: 'rgba(250,247,242,0.6)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                Discount Type *
+              </label>
+              <select
+                className="admin-input"
+                value={form.discountType}
+                onChange={e => setForm(f => ({ ...f, discountType: e.target.value }))}
+                style={{ cursor: 'pointer' }}
+              >
+                <option value="flat">Flat Price Off (₹ Rupees)</option>
+                <option value="percentage">Percentage Off (% Off)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ fontSize: '11px', color: 'rgba(250,247,242,0.6)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                {form.discountType === 'percentage' ? 'Discount Percentage (%) *' : 'Discount Price (₹ Rupees) *'}
+              </label>
+              <input
+                type="number"
+                className="admin-input"
+                required
+                min={1}
+                placeholder={form.discountType === 'percentage' ? 'e.g. 10 or 20' : 'e.g. 500'}
+                value={form.discountValue}
+                onChange={e => setForm(f => ({ ...f, discountValue: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <label style={{ fontSize: '11px', color: 'rgba(250,247,242,0.6)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                Min Order Cart Value (₹)
+              </label>
+              <input
+                type="number"
+                className="admin-input"
+                placeholder="0 for no minimum"
+                value={form.minOrderValue}
+                onChange={e => setForm(f => ({ ...f, minOrderValue: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label style={{ fontSize: '11px', color: 'rgba(250,247,242,0.6)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+              Description / Notes
+            </label>
+            <input
+              type="text"
+              className="admin-input"
+              placeholder="e.g. Welcome offer — ₹500 OFF on your first couture order!"
+              value={form.description}
+              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '6px' }}>
+            <button type="submit" className="btn btn-gold" style={{ fontSize: '12px', padding: '8px 18px' }}>
+              {isEditing ? 'Save Coupon Changes' : '+ Save & Activate Coupon'}
+            </button>
+            {isEditing && (
+              <button type="button" className="btn btn-outline" onClick={resetForm} style={{ fontSize: '12px', padding: '8px 14px' }}>
+                Cancel Edit
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      {/* Active Coupons List Grid */}
+      <h3 style={{ fontSize: '15px', color: 'var(--color-ivory)', marginBottom: '12px', fontFamily: 'var(--font-heading)' }}>
+        Active &amp; Configured Store Coupons ({coupons.length})
+      </h3>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
+        {coupons.map(c => {
+          const isFlat = c.discountType === 'flat';
+          const badgeText = isFlat ? `₹${Number(c.discountValue).toLocaleString('en-IN')} OFF` : `${c.discountValue}% OFF`;
+
+          return (
+            <div key={c.id} className="admin-card" style={{ position: 'relative', border: c.isActive !== false ? '1px solid var(--color-gold)' : '1px solid rgba(255,255,255,0.1)', opacity: c.isActive !== false ? 1 : 0.6 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                <div>
+                  <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--color-gold)', letterSpacing: '0.08em', fontFamily: 'var(--font-heading)' }}>
+                    {c.code}
+                  </span>
+                  <span style={{ display: 'block', fontSize: '10px', color: 'rgba(250,247,242,0.5)', marginTop: '2px' }}>
+                    {isFlat ? 'Flat Price Discount' : 'Percentage Discount'}
+                  </span>
+                </div>
+
+                <span style={{ fontSize: '12px', fontWeight: 800, background: isFlat ? 'rgba(76,175,120,0.15)' : 'rgba(197,169,107,0.15)', color: isFlat ? '#4CAF78' : 'var(--color-gold)', padding: '4px 10px', borderRadius: '4px', border: '1px solid currentColor' }}>
+                  {badgeText}
+                </span>
+              </div>
+
+              {c.description && (
+                <p style={{ fontSize: '12px', color: 'rgba(250,247,242,0.8)', marginBottom: '8px', lineHeight: 1.4 }}>
+                  {c.description}
+                </p>
+              )}
+
+              <p style={{ fontSize: '11px', color: 'rgba(250,247,242,0.5)', marginBottom: '12px' }}>
+                Min Order Cart Value: <strong>{Number(c.minOrderValue) > 0 ? `₹${Number(c.minOrderValue).toLocaleString('en-IN')}` : 'No Minimum'}</strong>
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '10px' }}>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => handleToggleActive(c)}
+                  style={{ fontSize: '10px', padding: '4px 8px', color: c.isActive !== false ? '#4CAF78' : '#E8A838', borderColor: 'currentColor' }}
+                >
+                  {c.isActive !== false ? '✓ Active' : 'Paused (Click to Enable)'}
+                </button>
+
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => handleEditCoupon(c)}
+                    style={{ fontSize: '10px', padding: '4px 8px', color: 'var(--color-gold)', borderColor: 'rgba(197,169,107,0.3)' }}
+                  >
+                    Edit Price
+                  </button>
+                  {c.code !== 'FIRSTORDER' && (
+                    <button
+                      onClick={() => handleDeleteCoupon(c)}
+                      style={{ background: 'transparent', border: 'none', color: '#E87A7A', cursor: 'pointer', padding: '4px' }}
+                      title="Delete Coupon"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // ── MAIN ADMIN PANEL CONTAINER ───────────────────────────────
 const TABS = [
   { id: 'collectionOrders', label: 'Collection Orders',        shortLabel: 'Collection',   icon: <Package size={15} /> },
   { id: 'sareeOrders',      label: 'Saree Transformation',    shortLabel: 'Saree Trans.', icon: <Scissors size={15} /> },
   { id: 'purchaseRequests', label: 'Price & Purchase Requests',shortLabel: 'Price Quotes', icon: <DollarSign size={15} /> },
+  { id: 'coupons',          label: 'Coupon Codes & Discounts',shortLabel: 'Coupons',     icon: <Tag size={15} /> },
   { id: 'products',         label: 'Add & Manage Garments',   shortLabel: 'Add Item',     icon: <PlusCircle size={15} /> },
   { id: 'stock',            label: 'Catalog & Stock',         shortLabel: 'Stock',        icon: <Layers size={15} /> },
 ];
@@ -1938,6 +2187,9 @@ const AdminPanel = () => {
         )}
         {activeTab === 'purchaseRequests' && (
           <PurchaseRequestsTab triggerToast={triggerToast} />
+        )}
+        {activeTab === 'coupons' && (
+          <CouponsTab triggerToast={triggerToast} />
         )}
         {activeTab === 'products' && (
           <ProductsTab
