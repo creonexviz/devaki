@@ -28,7 +28,7 @@ import './AdminPanel.css';
 
 const STATUS_CONFIG = {
   whatsappSent: { label: 'WhatsApp Message Sent (Payment Pending)', shortLabel: 'WhatsApp Sent (Payment Pending)', next: 'pending', nextLabel: 'Mark Payment Received & Place Order', bg: '#E67E22' },
-  pending:      { label: 'Order Placed', shortLabel: 'Order Placed', next: 'inProduction', nextLabel: 'Start Stitching (In Production)', bg: '#27AE60' },
+  pending:      { label: 'Payment Received', shortLabel: 'Payment Received', next: 'inProduction', nextLabel: 'Start Stitching (In Production)', bg: '#27AE60' },
   inProduction: { label: 'In Production', shortLabel: 'In Production', next: 'qualityCheck', nextLabel: 'Send to Quality Check', bg: '#4A90E2' },
   qualityCheck: { label: 'Quality Check', shortLabel: 'Quality Check', next: 'dispatched',   nextLabel: 'Dispatch Order', bg: '#9B51E0' },
   dispatched:   { label: 'Dispatched', shortLabel: 'Dispatched', next: 'delivered',    nextLabel: 'Mark Delivered', bg: '#27AE60' },
@@ -221,90 +221,304 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
 
   const handlePrintSpecTicket = (order) => {
     const summary = order.selectionsSummary || order.items?.[0]?.selectionsSummary;
+    const isPaid = order.status !== 'whatsappSent';
     const fitLabel = order.fitType === 'custom'
       ? 'Made-to-Measure Custom Fit'
       : `Standard Size ${order.size || 'M'}`;
+    const formattedDate = new Date(order.createdAt || Date.now()).toLocaleDateString('en-IN', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+    const finalPrice = order.finalPrice || order.items?.[0]?.finalPrice || 2499;
 
     const win = window.open('', '_blank');
     win.document.write(`
+      <!DOCTYPE html>
       <html>
         <head>
-          <title>Spec Ticket - Order #DV${order.id}</title>
+          <title>${isPaid ? 'PAID TAX INVOICE' : 'SPECIFICATION TICKET'} - DEVAKI #DV${order.id}</title>
           <style>
-            body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 24px; color: #111; line-height: 1.5; }
-            .header { border-bottom: 2px solid #C5A96B; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; }
-            .brand { font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #0A2146; }
-            .ticket-title { font-size: 14px; text-transform: uppercase; color: #C5A96B; font-weight: 700; }
-            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-            .box { background: #FDFBF7; border: 1px solid #E5D5B5; padding: 12px; border-radius: 4px; }
-            .label { font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
-            .val { font-size: 15px; font-weight: bold; color: #061628; }
-            table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-            th, td { border: 1px solid #C5A96B; padding: 10px; text-align: left; font-size: 14px; }
-            th { background: #0A2146; color: #FFF3D1; text-transform: uppercase; font-size: 12px; }
-            .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #DDD; padding-top: 16px; }
+            @page {
+              size: A4;
+              margin: 12mm 15mm;
+            }
+            body {
+              font-family: 'Helvetica Neue', Arial, sans-serif;
+              color: #0A2146;
+              background: #FFF;
+              margin: 0;
+              padding: 24px;
+              box-sizing: border-box;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .invoice-box {
+              max-width: 800px;
+              margin: 0 auto;
+              border: 2px solid #C5A96B;
+              padding: 28px;
+              position: relative;
+              background: #FFFDF9;
+              box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            }
+            .header-bar {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              border-bottom: 2.5px solid #0A2146;
+              padding-bottom: 16px;
+              margin-bottom: 24px;
+            }
+            .brand-name {
+              font-family: 'Georgia', serif;
+              font-size: 28px;
+              font-weight: 700;
+              color: #0A2146;
+              letter-spacing: 3px;
+              text-transform: uppercase;
+              margin: 0;
+            }
+            .brand-sub {
+              font-size: 11px;
+              color: #8C6C3E;
+              letter-spacing: 2px;
+              text-transform: uppercase;
+              margin-top: 4px;
+            }
+            .doc-title {
+              font-size: 18px;
+              font-weight: 700;
+              color: ${isPaid ? '#27AE60' : '#E67E22'};
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              text-align: right;
+            }
+            .doc-num {
+              font-size: 14px;
+              font-weight: bold;
+              color: #0A2146;
+              margin-top: 4px;
+            }
+            .paid-stamp {
+              display: inline-block;
+              border: 2.5px double ${isPaid ? '#27AE60' : '#E67E22'};
+              color: ${isPaid ? '#27AE60' : '#E67E22'};
+              font-size: 13px;
+              font-weight: 800;
+              padding: 4px 12px;
+              border-radius: 4px;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+              margin-top: 8px;
+              background: ${isPaid ? 'rgba(39,174,96,0.06)' : 'rgba(230,126,34,0.06)'};
+            }
+            .info-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+              margin-bottom: 24px;
+            }
+            .info-block {
+              background: #F9F5ED;
+              border: 1px solid #E5DDD0;
+              border-radius: 6px;
+              padding: 14px;
+            }
+            .block-title {
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+              color: #8C6C3E;
+              letter-spacing: 1px;
+              margin-bottom: 8px;
+              border-bottom: 1px solid #E5DDD0;
+              padding-bottom: 4px;
+            }
+            .info-line {
+              font-size: 13px;
+              margin: 4px 0;
+              color: #0A2146;
+              line-height: 1.4;
+            }
+            .table-invoice {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 24px;
+            }
+            .table-invoice th {
+              background: #0A2146;
+              color: #FFEBA3;
+              font-size: 11px;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              padding: 10px 14px;
+              text-align: left;
+            }
+            .table-invoice td {
+              border-bottom: 1px solid #E5DDD0;
+              padding: 12px 14px;
+              font-size: 13px;
+            }
+            .total-section {
+              display: flex;
+              justify-content: flex-end;
+              margin-bottom: 28px;
+            }
+            .total-table {
+              width: 280px;
+              border-collapse: collapse;
+            }
+            .total-table td {
+              padding: 6px 12px;
+              font-size: 13px;
+            }
+            .total-table .grand-total {
+              font-size: 15px;
+              font-weight: 700;
+              color: #0A2146;
+              border-top: 2px solid #0A2146;
+              border-bottom: 2px solid #0A2146;
+              background: #F9F5ED;
+            }
+            .sign-box {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+              margin-top: 36px;
+              padding-top: 16px;
+            }
+            .sign-line {
+              border-top: 1px solid #0A2146;
+              width: 180px;
+              text-align: center;
+              font-size: 11px;
+              padding-top: 4px;
+              color: #0A2146;
+              font-weight: 600;
+            }
+            .footer-note {
+              border-top: 1px solid #E5DDD0;
+              padding-top: 14px;
+              margin-top: 20px;
+              text-align: center;
+              font-size: 11px;
+              color: #47655B;
+              line-height: 1.5;
+            }
           </style>
         </head>
         <body>
-          <div class="header">
-            <div>
-              <div class="brand">DEVAKI COUTURE</div>
-              <div class="ticket-title">Master Stitching Specification Ticket</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-size: 20px; font-weight: bold;">Order #DV${order.id}</div>
-              <div style="font-size: 12px;">Date: ${order.createdAt}</div>
-            </div>
-          </div>
-
-          <div class="grid">
-            <div class="box">
-              <div class="label">Customer Information</div>
-              <div class="val">${order.customer?.name || 'Customer'}</div>
-              <div>Phone: ${order.customer?.phone || 'N/A'}</div>
-              <div>Email: ${order.customer?.email || 'N/A'}</div>
-              <div>City: ${order.customer?.city || 'N/A'}</div>
-            </div>
-            <div class="box">
-              <div class="label">Garment Specification</div>
-              <div class="val">${order.productName || order.items?.[0]?.productName || 'Custom Couture Blouse'}</div>
-              <div>Fabric: <strong>${order.fabric || order.items?.[0]?.fabric || 'Pure Silk'}</strong></div>
-              <div>Fit Type: <strong>${fitLabel}</strong></div>
-            </div>
-          </div>
-
-          <div class="box" style="margin-bottom: 24px;">
-            <div class="label">Design Details &amp; Steps</div>
-            ${summary ? Object.entries(summary).map(([k, v]) => `<div>• ${k}: <strong>${v}</strong></div>`).join('') : `
-              <div>• Neckline: <strong>${order.neckline || 'Custom'}</strong></div>
-              <div>• Sleeves: <strong>${order.sleeves || 'Custom'}</strong></div>
-            `}
-          </div>
-
-          ${(order.sareeImage || order.sareeImage2) ? `
-            <div class="box" style="margin-bottom: 24px; border-color: #C5A96B;">
-              <div class="label" style="color: #C5A96B; font-weight: bold;">CUSTOMER UPLOADED MEMORABLE SAREE PHOTOS</div>
-              <div style="margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap;">
-                ${order.sareeImage ? `<img src="${order.sareeImage}" style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid #C5A96B;" alt="Uploaded Saree Photo 1" />` : ''}
-                ${order.sareeImage2 ? `<img src="${order.sareeImage2}" style="max-width: 200px; max-height: 200px; border-radius: 4px; border: 1px solid #C5A96B;" alt="Uploaded Saree Photo 2" />` : ''}
+          <div class="invoice-box">
+            <div class="header-bar">
+              <div>
+                <h1 class="brand-name">DEVAKI</h1>
+                <div class="brand-sub">LUXURY INDIAN COUTURE</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="doc-title">${isPaid ? 'PAID TAX INVOICE' : 'WORKFLOW SPEC TICKET'}</div>
+                <div class="doc-num">Invoice No: DV-INV-${order.id}</div>
+                <div style="font-size: 12px; color: #47655B; margin-top: 2px;">Date: ${formattedDate}</div>
+                <div class="paid-stamp">${isPaid ? '✓ PAYMENT RECEIVED' : '⏳ PAYMENT PENDING'}</div>
               </div>
             </div>
-          ` : ''}
 
-          ${order.measurements && order.fitType === 'custom' ? `
-            <div class="label" style="font-size: 14px; margin-bottom: 8px;">Tailoring Measurements (12 Fields - Inches)</div>
-            <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px;">
-              ${Object.entries(order.measurements).map(([k, v]) => `
-                <div class="box">
-                  <div class="label" style="font-size: 10px;">${k.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</div>
-                  <div class="val" style="font-size: 14px;">${v ? `${v}"` : '—'}</div>
-                </div>
-              `).join('')}
+            <div class="info-grid">
+              <div class="info-block">
+                <div class="block-title">Customer & Delivery Information</div>
+                <div class="info-line"><strong>Name:</strong> ${order.customer?.name || 'Valued Customer'}</div>
+                <div class="info-line"><strong>Phone:</strong> ${order.customer?.phone || 'N/A'}</div>
+                <div class="info-line"><strong>Address:</strong> ${order.customer?.address || 'N/A'}</div>
+                <div class="info-line"><strong>City & PIN:</strong> ${order.customer?.city || ''} ${order.customer?.pincode ? `- ${order.customer.pincode}` : ''}, ${order.customer?.state || ''}</div>
+              </div>
+
+              <div class="info-block">
+                <div class="block-title">Garment & Order Specifications</div>
+                <div class="info-line"><strong>Garment:</strong> ${order.productName || order.items?.[0]?.productName || 'Couture Piece'}</div>
+                <div class="info-line"><strong>Fabric:</strong> ${order.fabric || order.items?.[0]?.fabric || 'Pure Silk'}</div>
+                <div class="info-line"><strong>Fit Type:</strong> ${fitLabel}</div>
+                <div class="info-line"><strong>Order Ref:</strong> #DV${order.id}</div>
+              </div>
             </div>
-          ` : ''}
 
-          <div class="footer">
-            DEVAKI Studio Couture · Master Artisan Craftsmanship Spec · Confidential Internal Docket
+            ${summary ? `
+              <div class="info-block" style="margin-bottom: 20px;">
+                <div class="block-title">Custom Design Selections</div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;">
+                  ${Object.entries(summary).map(([k, v]) => `
+                    <div class="info-line">• <strong>${k}:</strong> ${v}</div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            ${(order.measurements && order.fitType === 'custom') ? `
+              <div class="info-block" style="margin-bottom: 20px;">
+                <div class="block-title">Tailoring Measurements (Inches)</div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                  ${Object.entries(order.measurements).map(([k, v]) => `
+                    <div class="info-line" style="font-size: 11px;">
+                      <span style="color: #8C6C3E; text-transform: uppercase;">${k}:</span> <strong>${v || '—'}"</strong>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            <table class="table-invoice">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Fabric & Specifications</th>
+                  <th>Qty</th>
+                  <th style="text-align: right;">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <strong>${order.productName || order.items?.[0]?.productName || 'DEVAKI Couture Garment'}</strong>
+                    <br /><span style="font-size: 11px; color: #666;">Custom Handcrafted Couture</span>
+                  </td>
+                  <td>${order.fabric || order.items?.[0]?.fabric || 'Pure Silk'} · ${fitLabel}</td>
+                  <td>1</td>
+                  <td style="text-align: right; font-weight: bold;">₹${Number(finalPrice).toLocaleString('en-IN')}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="total-section">
+              <table class="total-table">
+                <tr>
+                  <td>Subtotal:</td>
+                  <td style="text-align: right;">₹${Number(finalPrice).toLocaleString('en-IN')}</td>
+                </tr>
+                <tr>
+                  <td>GST / Taxes (Incl.):</td>
+                  <td style="text-align: right;">₹0.00</td>
+                </tr>
+                <tr>
+                  <td>Shipping Charges:</td>
+                  <td style="text-align: right; color: #27AE60;">FREE</td>
+                </tr>
+                <tr class="grand-total">
+                  <td>TOTAL PAID:</td>
+                  <td style="text-align: right;">₹${Number(finalPrice).toLocaleString('en-IN')}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="sign-box">
+              <div style="font-size: 11px; color: #47655B;">
+                <strong>DEVAKI STUDIO CARE TEAM</strong><br />
+                WhatsApp: 8555074387 · Studio Direct Sync
+              </div>
+              <div class="sign-line">
+                AUTHORIZED SIGNATURE
+              </div>
+            </div>
+
+            <div class="footer-note">
+              DEVAKI Couture · Thank you for your purchase! · Official A4 Paid Tax Invoice & Receipt.
+            </div>
           </div>
         </body>
       </html>
@@ -511,17 +725,18 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                   )}
                 </div>
 
-                {/* Interactive Workflow Stepper Action Bar */}
+                {/* Interactive 2x2 Grid Action Bar */}
                 <div className="admin-order-card__actions">
-                  <div className="admin-order-card__action-group">
-                    <span style={{ fontSize: '11px', color: 'rgba(250,247,242,0.6)', fontWeight: 600 }}>Change Status:</span>
+                  {/* Slot 1: Status Dropdown Select */}
+                  <div className="admin-order-action-slot">
                     <select
                       className="status-select"
                       value={order.status || 'whatsappSent'}
                       onChange={e => updateStatus(order.id, e.target.value)}
+                      style={{ width: '100%', height: '36px', fontSize: '11px' }}
                     >
                       <option value="whatsappSent">WhatsApp Message Sent (Payment Pending)</option>
-                      <option value="pending">Order Placed (Payment Received)</option>
+                      <option value="pending">Payment Received</option>
                       <option value="inProduction">In Production</option>
                       <option value="qualityCheck">Quality Check</option>
                       <option value="dispatched">Dispatched</option>
@@ -529,43 +744,62 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                     </select>
                   </div>
 
-                  <div className="admin-order-card__action-group">
+                  {/* Slot 2: WhatsApp Payment Details Button */}
+                  <div className="admin-order-action-slot">
                     <a
-                      href={`https://wa.me/91${order.customer?.phone || order.customer?.whatsapp || ''}?text=${encodeURIComponent(
-                        `Hello ${order.customer?.name || 'Valued Customer'}, we received your Saree Transformation request (#DV${order.id}) for ${order.productName}! Our master artisan checked your uploaded saree photo and confirmed it is customizable for this outfit design. Here are the payment details to confirm your order:`
+                      href={`https://wa.me/91${(order.customer?.phone || order.customer?.whatsapp || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                        `Hello ${order.customer?.name || 'Valued Customer'}, regarding your DEVAKI order (#DV${order.id}) for ${order.productName || 'Couture Garment'}. Here are your payment & order details:`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-gold"
-                      style={{ fontSize: '11px', padding: '6px 12px', gap: '4px', background: '#25D366', color: '#FFF', borderColor: '#25D366', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+                      style={{ width: '100%', height: '36px', fontSize: '11px', padding: '6px 8px', gap: '4px', background: '#25D366', color: '#FFF', borderColor: '#25D366', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       <MessageSquare size={13} /> WhatsApp Payment Details
                     </a>
+                  </div>
 
+                  {/* Slot 3: Paid Invoice (A4) / Spec Ticket Print Button */}
+                  <div className="admin-order-action-slot">
                     <button
                       className="btn btn-outline"
                       onClick={() => handlePrintSpecTicket(order)}
-                      style={{ fontSize: '11px', padding: '6px 12px', gap: '4px', color: 'var(--color-gold)', borderColor: 'rgba(197,169,107,0.3)' }}
+                      style={{
+                        width: '100%',
+                        height: '36px',
+                        fontSize: '11px',
+                        padding: '6px 8px',
+                        gap: '4px',
+                        color: order.status !== 'whatsappSent' ? '#4CAF78' : 'var(--color-gold)',
+                        borderColor: order.status !== 'whatsappSent' ? 'rgba(76,175,120,0.5)' : 'rgba(197,169,107,0.4)',
+                        background: order.status !== 'whatsappSent' ? 'rgba(76,175,120,0.1)' : 'transparent'
+                      }}
                     >
-                      <Printer size={12} /> Spec Ticket
+                      <Printer size={13} /> {order.status !== 'whatsappSent' ? 'Paid Invoice (A4)' : 'Spec Ticket'}
                     </button>
+                  </div>
 
-                    {nextAction && (
+                  {/* Slot 4: Advance Workflow / Delete Action */}
+                  <div className="admin-order-action-slot" style={{ gap: '6px' }}>
+                    {nextAction ? (
                       <button
                         className="btn btn-gold"
                         onClick={() => advanceStatus(order.id, order.status)}
-                        style={{ fontSize: '11px', padding: '6px 14px', gap: '6px' }}
+                        style={{ flex: 1, height: '36px', fontSize: '11px', padding: '6px 8px', gap: '4px' }}
                       >
                         {config.nextLabel} <ArrowRight size={13} />
                       </button>
+                    ) : (
+                      <span style={{ flex: 1, fontSize: '11px', color: '#4CAF78', fontWeight: 700, textAlign: 'center' }}>
+                        ✓ Completed
+                      </span>
                     )}
-
                     <button
                       onClick={() => deleteOrder(order.id)}
-                      style={{ background: 'transparent', border: 'none', color: '#E87A7A', cursor: 'pointer', padding: '4px' }}
+                      style={{ background: 'rgba(232,122,122,0.1)', border: '1px solid rgba(232,122,122,0.3)', borderRadius: '6px', color: '#E87A7A', cursor: 'pointer', padding: '0 10px', height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                       title="Delete Order"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
