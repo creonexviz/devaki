@@ -92,10 +92,17 @@
 
 /* Tabs */
 .admin-tabs {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
   width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.admin-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 @media (min-width: 768px) {
@@ -103,6 +110,7 @@
     display: flex;
     width: auto;
     gap: 8px;
+    overflow-x: visible;
   }
 }
 
@@ -552,26 +560,34 @@
   .admin-tabs {
     width: 100%;
     order: 3;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 3px;
     padding-top: 4px;
     border-top: 1px solid rgba(197,169,107,0.12);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .admin-tabs::-webkit-scrollbar {
+    display: none;
   }
   .admin-tab {
-    font-size: 10px;
-    padding: 4px 2px;
-    flex-direction: column;
+    flex: 1 0 auto;
+    font-size: 9.5px;
+    padding: 5px 6px;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
     text-align: center;
     border-radius: 6px;
-    min-height: 38px;
+    min-height: 34px;
+    white-space: nowrap;
   }
   .admin-tab__label { display: none; }
-  .admin-tab__short-label { display: block; white-space: nowrap; font-size: 10px; }
-  .admin-tab__icon { font-size: 14px; }
+  .admin-tab__short-label { display: inline; white-space: nowrap; font-size: 9.5px; }
+  .admin-tab__icon { font-size: 13px; display: flex; align-items: center; }
 
   .admin-body {
     padding: 10px 8px 48px;

@@ -2113,12 +2113,12 @@ const CouponsTab = ({ triggerToast }) => {
 
 // ── MAIN ADMIN PANEL CONTAINER ───────────────────────────────
 const TABS = [
-  { id: 'collectionOrders', label: 'Collection Orders',        shortLabel: 'Collection',   icon: <Package size={15} /> },
-  { id: 'sareeOrders',      label: 'Saree Transformation',    shortLabel: 'Saree Trans.', icon: <Scissors size={15} /> },
-  { id: 'purchaseRequests', label: 'Price & Purchase Requests',shortLabel: 'Price Quotes', icon: <DollarSign size={15} /> },
-  { id: 'coupons',          label: 'Coupon Codes & Discounts',shortLabel: 'Coupons',     icon: <Tag size={15} /> },
-  { id: 'products',         label: 'Add & Manage Garments',   shortLabel: 'Add Item',     icon: <PlusCircle size={15} /> },
-  { id: 'stock',            label: 'Catalog & Stock',         shortLabel: 'Stock',        icon: <Layers size={15} /> },
+  { id: 'collectionOrders', label: 'Collection Orders',        shortLabel: 'Collection', icon: <Package size={14} /> },
+  { id: 'sareeOrders',      label: 'Saree Transformation',    shortLabel: 'Saree',      icon: <Scissors size={14} /> },
+  { id: 'purchaseRequests', label: 'Price & Purchase Requests',shortLabel: 'Quotes',     icon: <DollarSign size={14} /> },
+  { id: 'coupons',          label: 'Coupon Codes & Discounts',shortLabel: 'Coupons',    icon: <Tag size={14} /> },
+  { id: 'products',         label: 'Add & Manage Garments',   shortLabel: 'Add Item',   icon: <PlusCircle size={14} /> },
+  { id: 'stock',            label: 'Catalog & Stock',         shortLabel: 'Stock',      icon: <Layers size={14} /> },
 ];
 
 const AdminPanel = () => {
