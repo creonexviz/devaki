@@ -233,6 +233,9 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
       day: 'numeric', month: 'short', year: 'numeric'
     });
     const finalPrice = order.finalPrice || order.items?.[0]?.finalPrice || 2499;
+    const discountAmount = Number(order.discountAmount || 0);
+    const couponCode = order.couponCode || null;
+    const subtotal = Number(order.subtotal || order.cartTotal || (finalPrice + discountAmount));
 
     const win = window.open('', '_blank');
     win.document.write(`
@@ -440,6 +443,7 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                 <div class="info-line"><strong>Fabric:</strong> ${order.fabric || order.items?.[0]?.fabric || 'Pure Silk'}</div>
                 <div class="info-line"><strong>Fit Type:</strong> ${fitLabel}</div>
                 <div class="info-line"><strong>Order Ref:</strong> #DV${order.id}</div>
+                ${couponCode || discountAmount > 0 ? `<div class="info-line" style="color: #27AE60; font-weight: bold; margin-top: 4px;"><strong>Coupon Applied:</strong> ${couponCode || 'PROMO'} (-₹${discountAmount.toLocaleString('en-IN')})</div>` : ''}
               </div>
             </div>
 
@@ -484,7 +488,7 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                   </td>
                   <td>${order.fabric || order.items?.[0]?.fabric || 'Pure Silk'} · ${fitLabel}</td>
                   <td>1</td>
-                  <td style="text-align: right; font-weight: bold;">₹${Number(finalPrice).toLocaleString('en-IN')}</td>
+                  <td style="text-align: right; font-weight: bold;">₹${subtotal.toLocaleString('en-IN')}</td>
                 </tr>
               </tbody>
             </table>
@@ -493,8 +497,14 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
               <table class="total-table">
                 <tr>
                   <td>Subtotal:</td>
-                  <td style="text-align: right;">₹${Number(finalPrice).toLocaleString('en-IN')}</td>
+                  <td style="text-align: right;">₹${subtotal.toLocaleString('en-IN')}</td>
                 </tr>
+                ${discountAmount > 0 ? `
+                <tr style="color: #27AE60; font-weight: 600;">
+                  <td>Coupon Discount (${couponCode || 'PROMO'}):</td>
+                  <td style="text-align: right;">-₹${discountAmount.toLocaleString('en-IN')}</td>
+                </tr>
+                ` : ''}
                 <tr>
                   <td>GST / Taxes (Incl.):</td>
                   <td style="text-align: right;">₹0.00</td>
@@ -504,7 +514,7 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                   <td style="text-align: right; color: #27AE60;">FREE</td>
                 </tr>
                 <tr class="grand-total">
-                  <td>TOTAL PAID:</td>
+                  <td>${isPaid ? 'TOTAL PAID:' : 'TOTAL DUE:'}</td>
                   <td style="text-align: right;">₹${Number(finalPrice).toLocaleString('en-IN')}</td>
                 </tr>
               </table>
@@ -632,13 +642,21 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
 
                 <div className="admin-order-card__body">
                   <div className="admin-spec-group">
-                    <p className="admin-spec-label">Item &amp; Fabric</p>
+                    <p className="admin-spec-label">Item &amp; Pricing Specs</p>
                     <p className="admin-spec-value" style={{ fontWeight: 700 }}>{order.productName || order.items?.[0]?.productName}</p>
                     <p className="admin-spec-value" style={{ color: 'var(--color-gold-light)', fontSize: 'var(--text-xs)' }}>
                       Fabric: {order.fabric || order.items?.[0]?.fabric || 'Pure Silk'}
                     </p>
                     <p className="admin-spec-value" style={{ color: 'rgba(250,247,242,0.8)', fontSize: 'var(--text-xs)' }}>
-                      Price: <strong>₹{(order.finalPrice || order.items?.[0]?.finalPrice || 2499).toLocaleString('en-IN')}</strong>
+                      Subtotal: <strong>₹{(order.subtotal || order.cartTotal || (order.finalPrice || 2499) + (order.discountAmount || 0)).toLocaleString('en-IN')}</strong>
+                    </p>
+                    {order.discountAmount > 0 && (
+                      <p className="admin-spec-value" style={{ color: '#4CAF78', fontSize: '11px', fontWeight: 700 }}>
+                        Coupon ({order.couponCode || 'PROMO'}): -₹{order.discountAmount.toLocaleString('en-IN')}
+                      </p>
+                    )}
+                    <p className="admin-spec-value" style={{ color: 'var(--color-gold)', fontSize: '12px', fontWeight: 700, marginTop: '2px' }}>
+                      Final Total: <strong>₹{(order.finalPrice || order.items?.[0]?.finalPrice || 2499).toLocaleString('en-IN')}</strong>
                     </p>
                   </div>
 
