@@ -70,7 +70,7 @@ const Footer = () => {
             <li>
               <Link to="/track-order" className="footer__link" style={{ color: 'var(--color-gold)', fontWeight: 600 }}>
                 <Phone size={15} />
-                <span>Track Your Order (by Phone)</span>
+                <span>Track Order by Phone #</span>
               </Link>
             </li>
             <li>
