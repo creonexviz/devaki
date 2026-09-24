@@ -27,12 +27,12 @@ import { compressImage } from '../utils/imageCompressor';
 import './AdminPanel.css';
 
 const STATUS_CONFIG = {
-  whatsappSent: { label: 'WhatsApp Message Sent (Payment Pending)', shortLabel: 'WhatsApp Sent (Payment Pending)', next: 'pending', nextLabel: 'Mark Payment Received & Place Order', bg: '#E67E22' },
-  pending:      { label: 'Payment Received', shortLabel: 'Payment Received', next: 'inProduction', nextLabel: 'Start Stitching (In Production)', bg: '#27AE60' },
-  inProduction: { label: 'In Production', shortLabel: 'In Production', next: 'qualityCheck', nextLabel: 'Send to Quality Check', bg: '#4A90E2' },
-  qualityCheck: { label: 'Quality Check', shortLabel: 'Quality Check', next: 'dispatched',   nextLabel: 'Dispatch Order', bg: '#9B51E0' },
-  dispatched:   { label: 'Dispatched', shortLabel: 'Dispatched', next: 'delivered',    nextLabel: 'Mark Delivered', bg: '#27AE60' },
-  delivered:    { label: 'Delivered', shortLabel: 'Delivered', next: null,           nextLabel: 'Completed', bg: '#4CAF78' }
+  whatsappSent: { label: 'WhatsApp Message Sent (Payment Pending)', shortLabel: 'WhatsApp Sent', next: 'pending', nextLabel: 'Mark Payment Received', shortNextLabel: 'Payment Received →', bg: '#E67E22' },
+  pending:      { label: 'Payment Received', shortLabel: 'Payment Received', next: 'inProduction', nextLabel: 'Start Stitching', shortNextLabel: 'Start Stitching →', bg: '#27AE60' },
+  inProduction: { label: 'In Production', shortLabel: 'In Production', next: 'qualityCheck', nextLabel: 'Send to Quality Check', shortNextLabel: 'Quality Check →', bg: '#4A90E2' },
+  qualityCheck: { label: 'Quality Check', shortLabel: 'Quality Check', next: 'dispatched',   nextLabel: 'Dispatch Order', shortNextLabel: 'Dispatch Order →', bg: '#9B51E0' },
+  dispatched:   { label: 'Dispatched', shortLabel: 'Dispatched', next: 'delivered',    nextLabel: 'Mark Delivered', shortNextLabel: 'Mark Delivered →', bg: '#27AE60' },
+  delivered:    { label: 'Delivered', shortLabel: 'Delivered', next: null,           nextLabel: 'Completed', shortNextLabel: 'Completed ✓', bg: '#4CAF78' }
 };
 
 // ── TOAST NOTIFICATION CARD BOX ──────────────────────────────
@@ -725,7 +725,7 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                   )}
                 </div>
 
-                {/* Interactive 2x2 Grid Action Bar */}
+                {/* Interactive Mobile Responsive 2x2 Grid Action Bar */}
                 <div className="admin-order-card__actions">
                   {/* Slot 1: Status Dropdown Select */}
                   <div className="admin-order-action-slot">
@@ -733,9 +733,9 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                       className="status-select"
                       value={order.status || 'whatsappSent'}
                       onChange={e => updateStatus(order.id, e.target.value)}
-                      style={{ width: '100%', height: '36px', fontSize: '11px' }}
+                      style={{ width: '100%', height: '38px', fontSize: 'clamp(10px, 2.6vw, 12px)', padding: '4px 6px' }}
                     >
-                      <option value="whatsappSent">WhatsApp Message Sent (Payment Pending)</option>
+                      <option value="whatsappSent">WhatsApp Sent (Pending)</option>
                       <option value="pending">Payment Received</option>
                       <option value="inProduction">In Production</option>
                       <option value="qualityCheck">Quality Check</option>
@@ -753,9 +753,26 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-gold"
-                      style={{ width: '100%', height: '36px', fontSize: '11px', padding: '6px 8px', gap: '4px', background: '#25D366', color: '#FFF', borderColor: '#25D366', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{
+                        width: '100%',
+                        height: '38px',
+                        fontSize: 'clamp(10px, 2.6vw, 12px)',
+                        padding: '4px 6px',
+                        gap: '4px',
+                        background: '#25D366',
+                        color: '#FFF',
+                        borderColor: '#25D366',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
                     >
-                      <MessageSquare size={13} /> WhatsApp Payment Details
+                      <MessageSquare size={13} style={{ flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>WhatsApp Pay Details</span>
                     </a>
                   </div>
 
@@ -766,40 +783,65 @@ const OrdersTab = ({ triggerToast, askConfirm, filterCategory = 'collection' }) 
                       onClick={() => handlePrintSpecTicket(order)}
                       style={{
                         width: '100%',
-                        height: '36px',
-                        fontSize: '11px',
-                        padding: '6px 8px',
+                        height: '38px',
+                        fontSize: 'clamp(10px, 2.6vw, 12px)',
+                        padding: '4px 6px',
                         gap: '4px',
                         color: order.status !== 'whatsappSent' ? '#4CAF78' : 'var(--color-gold)',
                         borderColor: order.status !== 'whatsappSent' ? 'rgba(76,175,120,0.5)' : 'rgba(197,169,107,0.4)',
-                        background: order.status !== 'whatsappSent' ? 'rgba(76,175,120,0.1)' : 'transparent'
+                        background: order.status !== 'whatsappSent' ? 'rgba(76,175,120,0.1)' : 'transparent',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
                       }}
                     >
-                      <Printer size={13} /> {order.status !== 'whatsappSent' ? 'Paid Invoice (A4)' : 'Spec Ticket'}
+                      <Printer size={13} style={{ flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.status !== 'whatsappSent' ? 'Paid Invoice (A4)' : 'Spec Ticket'}</span>
                     </button>
                   </div>
 
                   {/* Slot 4: Advance Workflow / Delete Action */}
-                  <div className="admin-order-action-slot" style={{ gap: '6px' }}>
+                  <div className="admin-order-action-slot" style={{ gap: '4px' }}>
                     {nextAction ? (
                       <button
                         className="btn btn-gold"
                         onClick={() => advanceStatus(order.id, order.status)}
-                        style={{ flex: 1, height: '36px', fontSize: '11px', padding: '6px 8px', gap: '4px' }}
+                        style={{
+                          flex: 1,
+                          height: '38px',
+                          fontSize: 'clamp(10px, 2.6vw, 12px)',
+                          padding: '4px 6px',
+                          gap: '3px',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
                       >
-                        {config.nextLabel} <ArrowRight size={13} />
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{config.shortNextLabel || config.nextLabel}</span>
                       </button>
                     ) : (
-                      <span style={{ flex: 1, fontSize: '11px', color: '#4CAF78', fontWeight: 700, textAlign: 'center' }}>
+                      <span style={{ flex: 1, fontSize: 'clamp(10px, 2.6vw, 12px)', color: '#4CAF78', fontWeight: 700, textAlign: 'center' }}>
                         ✓ Completed
                       </span>
                     )}
                     <button
                       onClick={() => deleteOrder(order.id)}
-                      style={{ background: 'rgba(232,122,122,0.1)', border: '1px solid rgba(232,122,122,0.3)', borderRadius: '6px', color: '#E87A7A', cursor: 'pointer', padding: '0 10px', height: '36px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                      style={{
+                        background: 'rgba(232,122,122,0.1)',
+                        border: '1px solid rgba(232,122,122,0.3)',
+                        borderRadius: '6px',
+                        color: '#E87A7A',
+                        cursor: 'pointer',
+                        padding: '0 8px',
+                        height: '38px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}
                       title="Delete Order"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
