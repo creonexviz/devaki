@@ -319,53 +319,89 @@
 .navbar__cat-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #0A2146;
-  background: rgba(10, 33, 70, 0.08);
-  border: 1px solid rgba(10, 33, 70, 0.2);
-  padding: 5px 9px;
-  border-radius: var(--radius-full);
-  transition: all var(--duration-fast) var(--ease-out);
+  background: transparent;
+  border: none;
+  padding: 8px 4px;
+  margin: 0 6px;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--duration-fast) var(--ease-out);
   white-space: nowrap;
   flex-shrink: 0;
+  box-shadow: none !important;
 }
 
 @media (min-width: 1280px) {
   .navbar__categories {
-    gap: 8px;
+    gap: 12px;
   }
   .navbar__cat-btn {
-    font-size: 11px;
-    padding: 6px 12px;
+    font-size: 11.5px;
+    padding: 8px 6px;
+    margin: 0 8px;
   }
+}
+
+/* Luxury animated horizontal underline on hover and active */
+.navbar__cat-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #C5A96B, #8C6C3E);
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  border-radius: 2px;
 }
 
 .navbar__cat-btn:hover {
-  background: rgba(10, 33, 70, 0.16);
-  border-color: rgba(10, 33, 70, 0.35);
-  box-shadow: 0 2px 8px rgba(10, 33, 70, 0.15);
+  color: #C5A96B;
+  background: transparent;
+  box-shadow: none;
+}
+
+.navbar__cat-btn:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
 }
 
 .navbar__cat-btn--active {
+  color: #0A2146;
+  font-weight: 800;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.navbar__cat-btn--active::after {
+  transform: scaleX(1);
   background: #0A2146;
-  color: #FFF3D1;
-  border-color: #0A2146;
-  box-shadow: 0 2px 10px rgba(10, 33, 70, 0.25);
 }
 
 .navbar__cat-btn--bm {
-  background: linear-gradient(135deg, rgba(6, 22, 40, 0.95), rgba(10, 33, 70, 0.98));
-  color: #FFEBA3;
-  border: 1px solid rgba(197, 169, 107, 0.5);
+  background: transparent;
+  color: #8C6C3E;
+  border: none;
 }
+
 .navbar__cat-btn--bm:hover {
-  background: linear-gradient(135deg, #0A2146, #0D2D5A);
-  box-shadow: 0 2px 12px rgba(10, 33, 70, 0.35);
+  background: transparent;
+  color: #C5A96B;
+  box-shadow: none;
+}
+
+.navbar__cat-btn--bm::after {
+  background: linear-gradient(90deg, #C5A96B, #8C6C3E);
 }
 
 .navbar__bm-badge {

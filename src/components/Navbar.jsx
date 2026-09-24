@@ -72,16 +72,15 @@ const Navbar = () => {
             <button
               className={`navbar__cat-btn${location.pathname === '/saree-transformation' ? ' navbar__cat-btn--active' : ''}`}
               onClick={() => navigate('/saree-transformation')}
-              style={{ background: location.pathname === '/saree-transformation' ? 'var(--color-gold)' : 'rgba(197,169,107,0.15)', borderColor: 'var(--color-gold)', color: location.pathname === '/saree-transformation' ? '#061628' : 'var(--color-plum)' }}
             >
-              <Scissors size={13} color={location.pathname === '/saree-transformation' ? '#061628' : 'var(--color-gold)'} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+              <Scissors size={13} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
               <span>Saree Transformation</span>
             </button>
             <button
               className="navbar__cat-btn navbar__cat-btn--bm"
               onClick={() => setShowBridesmaidModal(true)}
             >
-              <Crown size={13} color="var(--color-gold)" style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+              <Crown size={13} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
               <span>Bridesmaid</span>
               <span className="navbar__bm-badge">Coming Soon</span>
             </button>
