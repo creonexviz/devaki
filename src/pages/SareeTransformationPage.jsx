@@ -6,7 +6,6 @@ import { MOCK_PRODUCTS, getStockLabel, getStoredProducts } from '../data/product
 import { subscribeToProducts, saveOrderToFirebase } from '../services/firebaseService';
 import { useVisitorTracking } from '../hooks/useVisitorTracking';
 import CustomizationWizard from '../components/CustomizationWizard';
-import Footer from '../components/Footer';
 import StickyMobileCTA from '../components/StickyMobileCTA';
 import './CollectionPage.css';
 import './ProductPage.css';
@@ -461,9 +460,6 @@ const SareeTransformationPage = () => {
           onAction={() => setShowWizard(true)}
         />
       )}
-
-      {/* ── Full Site Footer ── */}
-      <Footer />
     </>
   );
 };

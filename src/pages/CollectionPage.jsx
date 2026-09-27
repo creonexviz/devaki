@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { getStoredProducts, getStockLabel } from '../data/products';
 import { subscribeToProducts } from '../services/firebaseService';
 import { useVisitorTracking } from '../hooks/useVisitorTracking';
-import Footer from '../components/Footer';
 import './CollectionPage.css';
 
 const ImagePlaceholder = ({ label }) => (
@@ -86,8 +85,7 @@ const CollectionPage = () => {
   });
 
   return (
-    <>
-      <main className="collection-page page-with-sticky-cta">
+    <main className="collection-page page-with-sticky-cta">
       <header className="collection-page__header">
         <h1 className="collection-page__title">The Collection</h1>
       </header>
@@ -129,10 +127,7 @@ const CollectionPage = () => {
         </div>
       )}
     </main>
-
-    <Footer />
-  </>
-);
+  );
 };
 
 export default CollectionPage;
