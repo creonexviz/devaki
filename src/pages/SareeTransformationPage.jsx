@@ -6,6 +6,8 @@ import { MOCK_PRODUCTS, getStockLabel, getStoredProducts } from '../data/product
 import { subscribeToProducts, saveOrderToFirebase } from '../services/firebaseService';
 import { useVisitorTracking } from '../hooks/useVisitorTracking';
 import CustomizationWizard from '../components/CustomizationWizard';
+import Footer from '../components/Footer';
+import StickyMobileCTA from '../components/StickyMobileCTA';
 import './CollectionPage.css';
 import './ProductPage.css';
 import './SareeTransformationPage.css';
@@ -182,7 +184,8 @@ const SareeTransformationPage = () => {
     : [];
 
   return (
-    <main className="collection-page page-with-sticky-cta">
+    <>
+      <main className="collection-page page-with-sticky-cta">
       {/* ── Collection Header Style ── */}
       <header className="collection-page__header">
         <h1 className="collection-page__title">Saree Transformation</h1>
@@ -447,7 +450,21 @@ const SareeTransformationPage = () => {
           </div>
         </div>
       )}
-    </main>
+      </main>
+
+      {/* ── Sticky Mobile CTA for Saree Transformation Outfit Detail View ── */}
+      {selectedProduct && !showWizard && !showContactForm && !submittedOrder && (
+        <StickyMobileCTA
+          price={`₹${currentPrice.toLocaleString('en-IN')}`}
+          sublabel="Saree Transformation"
+          label="TRANSFORM MY SAREE"
+          onAction={() => setShowWizard(true)}
+        />
+      )}
+
+      {/* ── Full Site Footer ── */}
+      <Footer />
+    </>
   );
 };
 
