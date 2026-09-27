@@ -44,7 +44,18 @@ const ProductCard = ({ product }) => {
         <p className="product-card__fabric">{product?.fabric || 'Pure Silk'}</p>
         <h3 className="product-card__name">{product?.name || 'DEVAKI Piece'}</h3>
         <p className="product-card__price">
-          {availableStock === 0 ? `Your price to buy: ₹${priceNum.toLocaleString('en-IN')}` : `₹${priceNum.toLocaleString('en-IN')}`}
+          {availableStock === 0 ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              <span style={{ textDecoration: 'line-through', opacity: 0.6, fontSize: '0.9em' }}>
+                ₹{priceNum.toLocaleString('en-IN')}
+              </span>
+              <span style={{ color: 'var(--color-gold)', fontWeight: 700, fontSize: '0.92em' }}>
+                Your price to buy
+              </span>
+            </span>
+          ) : (
+            `₹${priceNum.toLocaleString('en-IN')}`
+          )}
         </p>
       </div>
     </div>

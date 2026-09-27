@@ -123,8 +123,21 @@ const ProductPage = () => {
             <p className="product-info__tagline">{product.tagline}</p>
 
             <div className="product-info__price">
-              ₹{product.basePrice.toLocaleString('en-IN')}
-              <span className="product-info__price-label">Standard Purchase</span>
+              {isSoldOut ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ textDecoration: 'line-through', opacity: 0.6, fontSize: '0.85em' }}>
+                    ₹{product.basePrice.toLocaleString('en-IN')}
+                  </span>
+                  <span style={{ color: 'var(--color-gold)', fontWeight: 700, fontSize: '0.85em' }}>
+                    Your price to buy
+                  </span>
+                </span>
+              ) : (
+                <>
+                  ₹{product.basePrice.toLocaleString('en-IN')}
+                  <span className="product-info__price-label">Standard Purchase</span>
+                </>
+              )}
             </div>
 
             <div>
@@ -144,7 +157,14 @@ const ProductPage = () => {
                       <span className="request-card__type">Request to Purchase</span>
                       <span className="request-card__tag">24-Hr Decision</span>
                     </div>
-                    <p className="request-card__price">Your price to buy: ₹{product.basePrice.toLocaleString('en-IN')}</p>
+                    <p className="request-card__price" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span style={{ textDecoration: 'line-through', opacity: 0.6, fontSize: '0.9em' }}>
+                        ₹{product.basePrice.toLocaleString('en-IN')}
+                      </span>
+                      <span style={{ color: 'var(--color-gold)', fontWeight: 700 }}>
+                        Your price to buy
+                      </span>
+                    </p>
                     <p className="request-card__desc">
                       Name your price for this piece as shown.
                     </p>
@@ -158,7 +178,14 @@ const ProductPage = () => {
                       <span className="request-card__type" style={{ color: 'var(--color-gold)' }}>Request to Customize</span>
                       <span className="request-card__tag">Interactive 4-Steps</span>
                     </div>
-                    <p className="request-card__price">Your price to buy: From ₹{(product.basePrice + 150).toLocaleString('en-IN')}</p>
+                    <p className="request-card__price" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span style={{ textDecoration: 'line-through', opacity: 0.6, fontSize: '0.9em' }}>
+                        From ₹{(product.basePrice + 150).toLocaleString('en-IN')}
+                      </span>
+                      <span style={{ color: 'var(--color-gold)', fontWeight: 700 }}>
+                        Your price to buy
+                      </span>
+                    </p>
                     <p className="request-card__desc">
                       Select custom Neckline, Sleeves, Fabric &amp; Fit in 4 steps, then name your price.
                     </p>

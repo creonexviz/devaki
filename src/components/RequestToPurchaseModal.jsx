@@ -163,8 +163,10 @@ const RequestToPurchaseModal = ({ product, initialMode = 'purchase', initialCust
                 </p>
               </div>
               <div className="request-product-price">
-                <span className="request-price-label">Your price to buy</span>
-                <span className="request-price-val">₹{displayPrice.toLocaleString('en-IN')}</span>
+                <span className="request-price-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  Standard: <s style={{ opacity: 0.65, textDecoration: 'line-through' }}>₹{displayPrice.toLocaleString('en-IN')}</s>
+                </span>
+                <span className="request-price-val" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>Your price to buy</span>
               </div>
             </div>
 
