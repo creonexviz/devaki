@@ -1,14 +1,14 @@
 // src/pages/SareeTransformationPage.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, CheckCircle2, Phone, MessageSquare, MapPin, ChevronLeft, ChevronDown } from 'lucide-react';
+import { Sparkles, ArrowRight, CheckCircle2, Phone, MessageSquare, MapPin, ChevronDown, ChevronLeft } from 'lucide-react';
 import { MOCK_PRODUCTS, getStockLabel, getStoredProducts } from '../data/products';
 import { subscribeToProducts, saveOrderToFirebase } from '../services/firebaseService';
 import { useVisitorTracking } from '../hooks/useVisitorTracking';
 import CustomizationWizard from '../components/CustomizationWizard';
 import './CollectionPage.css';
-import './SareeTransformationPage.css';
 import './ProductPage.css';
+import './SareeTransformationPage.css';
 
 const ImagePlaceholder = ({ label }) => (
   <div className="img-placeholder">
@@ -26,7 +26,6 @@ const Accordion = ({ title, children }) => {
   return (
     <div className="product-accordion">
       <button
-        type="button"
         className={`product-accordion__trigger${open ? ' product-accordion__trigger--open' : ''}`}
         onClick={() => setOpen(o => !o)}
       >
@@ -72,9 +71,9 @@ const SareeTransformationPage = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [productsList, setProductsList] = useState(() => getStoredProducts());
-  const [viewingOutfit, setViewingOutfit] = useState(null);
-  const [activeImage, setActiveImage] = useState(0);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [showWizard, setShowWizard] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
   const [wizardSpecs, setWizardSpecs] = useState(null);
 
   // Contact Form State for selected wizard specs
@@ -99,6 +98,13 @@ const SareeTransformationPage = () => {
 
   const activeProducts = productsList.filter(p => p.isActive !== false);
 
+  const handleSelectProduct = (product) => {
+    setSelectedProduct(product);
+    setActiveImage(0);
+    setShowWizard(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleWizardSubmit = (specs) => {
     setWizardSpecs(specs);
     setShowWizard(false);
@@ -118,9 +124,9 @@ const SareeTransformationPage = () => {
       createdAt: new Date().toISOString(),
       status: 'whatsappSent',
       isSareeTransformation: true,
-      productName: viewingOutfit?.name || 'Custom Outfit from Saree',
-      productId: viewingOutfit?.id || 'custom-saree',
-      image: wizardSpecs?.sareeImage || viewingOutfit?.images?.[0] || null,
+      productName: selectedProduct?.name || 'Custom Outfit from Saree',
+      productId: selectedProduct?.id || 'custom-saree',
+      image: wizardSpecs?.sareeImage || selectedProduct?.images?.[0] || null,
       sareeImage: wizardSpecs?.sareeImage || null,
       sareeImage2: wizardSpecs?.sareeImage2 || null,
       sareeImages: wizardSpecs?.sareeImages || [wizardSpecs?.sareeImage].filter(Boolean),
@@ -150,7 +156,7 @@ const SareeTransformationPage = () => {
       `• Customer Name: ${customerName.trim()}\n` +
       `• Phone / WhatsApp: ${whatsapp.trim() || phone.trim()}\n` +
       `• Delivery Location: ${city.trim()}\n` +
-      `• Chosen Outfit Style: ${viewingOutfit?.name || 'Custom Outfit'}\n` +
+      `• Chosen Outfit Style: ${selectedProduct?.name || 'Custom Outfit'}\n` +
       `• Necklines: ${wizardSpecs?.neckline || 'Custom'} / ${wizardSpecs?.backNeck || 'Custom'}\n` +
       `• Sleeves: ${wizardSpecs?.sleeves || 'Custom'}\n` +
       `• Fit: ${wizardSpecs?.fitType === 'standard' ? `Standard Size ${wizardSpecs?.size}` : 'Custom Measurements'}\n` +
@@ -165,27 +171,25 @@ const SareeTransformationPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const galleryImages = viewingOutfit ? (
-    (viewingOutfit.images && viewingOutfit.images.length >= 3)
-      ? viewingOutfit.images.slice(0, 3)
-      : [
-          viewingOutfit.images?.[0] || viewingOutfit.image || null,
-          viewingOutfit.images?.[1] || viewingOutfit.images?.[0] || viewingOutfit.image || null,
-          viewingOutfit.images?.[2] || viewingOutfit.images?.[0] || viewingOutfit.image || null
-        ]
-  ) : [];
+  const currentPrice = selectedProduct
+    ? (Number(selectedProduct?.sareeTransformationPrice) || (selectedProduct?.basePrice ? Number(selectedProduct.basePrice) + 350 : 2849))
+    : 2849;
+
+  const galleryImages = selectedProduct
+    ? ((selectedProduct.images && selectedProduct.images.length >= 3)
+        ? selectedProduct.images.slice(0, 3)
+        : [selectedProduct.images?.[0] || null, selectedProduct.images?.[1] || null, selectedProduct.images?.[2] || null])
+    : [];
 
   return (
     <main className="collection-page page-with-sticky-cta">
-      {/* ── Collection Header Style (when browsing grid) ── */}
-      {!viewingOutfit && (
-        <header className="collection-page__header">
-          <h1 className="collection-page__title">Saree Transformation</h1>
-        </header>
-      )}
+      {/* ── Collection Header Style ── */}
+      <header className="collection-page__header">
+        <h1 className="collection-page__title">Saree Transformation</h1>
+      </header>
 
-      {/* ── Category Navigation Menu Bar (when browsing grid) ── */}
-      {!viewingOutfit && !showContactForm && !submittedOrder && (
+      {/* ── Category Navigation Menu Bar (when browsing outfits grid) ── */}
+      {!selectedProduct && !showContactForm && !submittedOrder && (
         <div className="collection-category-bar">
           <button
             className={`collection-cat-tab${selectedCategory === 'all' ? ' collection-cat-tab--active' : ''}`}
@@ -196,8 +200,8 @@ const SareeTransformationPage = () => {
         </div>
       )}
 
-      {/* ── Products Grid (when no outfit is selected) ── */}
-      {!viewingOutfit && !showContactForm && !submittedOrder && (
+      {/* ── Products Grid (when browsing items) ── */}
+      {!selectedProduct && !showContactForm && !submittedOrder && (
         activeProducts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 'var(--sp-12) var(--sp-4)' }}>
             <p style={{ color: 'var(--color-plum)', fontSize: 'var(--text-xl)', fontFamily: 'var(--font-heading)' }}>
@@ -207,40 +211,34 @@ const SareeTransformationPage = () => {
         ) : (
           <div className="collection-grid">
             {activeProducts.map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onSelect={() => {
-                  setViewingOutfit(product);
-                  setActiveImage(0);
-                  setShowWizard(false);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
+              <ProductCard key={product.id} product={product} onSelect={() => handleSelectProduct(product)} />
             ))}
           </div>
         )
       )}
 
-      {/* ── Dedicated Saree Transformation Outfit Detail Page (matching ProductPage.jsx layout) ── */}
-      {viewingOutfit && !showWizard && !showContactForm && !submittedOrder && (
-        <div className="product-page" style={{ background: 'transparent', minHeight: 'auto' }}>
-          {/* Back Nav Link */}
-          <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: 'var(--sp-3) var(--sp-4) 0' }}>
-            <button className="btn btn-ghost" onClick={() => setViewingOutfit(null)} style={{ gap: 'var(--sp-1)', padding: 'var(--sp-2) 0', color: 'var(--color-plum)' }}>
-              <ChevronLeft size={16} /> Back to Outfits
+      {/* ── Dedicated Outfit Detail View (Matching Collection Product Detail Layout) ── */}
+      {selectedProduct && !showWizard && !showContactForm && !submittedOrder && (
+        <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', width: '100%' }}>
+          {/* Back Navigation Button */}
+          <div style={{ padding: '0 var(--sp-4) var(--sp-4)' }}>
+            <button
+              className="btn btn-ghost"
+              onClick={() => setSelectedProduct(null)}
+              style={{ gap: 'var(--sp-1)', padding: 'var(--sp-2) 0', color: 'var(--color-plum)', fontWeight: 600 }}
+            >
+              <ChevronLeft size={16} /> All Saree Transformation Outfits
             </button>
           </div>
 
-          <div className="product-page__layout">
-            {/* Gallery (Main photo + 3 Thumbnails matching Collection Product Page) */}
+          <div className="product-page__layout" style={{ margin: 0 }}>
+            {/* ── Gallery ── */}
             <div className="product-gallery">
               <div className="product-gallery__main">
-                {galleryImages[activeImage] ? (
-                  <img src={galleryImages[activeImage]} alt={`${viewingOutfit.name} view ${activeImage + 1}`} />
-                ) : (
-                  <ImagePlaceholder label={`Main Photo — View ${activeImage + 1}`} />
-                )}
+                {galleryImages[activeImage]
+                  ? <img src={galleryImages[activeImage]} alt={`${selectedProduct.name} view ${activeImage + 1}`} />
+                  : <ImagePlaceholder label={`Main Photo — View ${activeImage + 1}`} />
+                }
               </div>
               <div className="product-gallery__thumbs">
                 {galleryImages.map((img, i) => (
@@ -248,7 +246,7 @@ const SareeTransformationPage = () => {
                     key={i}
                     className={`product-gallery__thumb${activeImage === i ? ' product-gallery__thumb--active' : ''}`}
                     onClick={() => setActiveImage(i)}
-                    aria-label={`View outfit image ${i + 1}`}
+                    aria-label={`View image ${i + 1}`}
                   >
                     {img ? <img src={img} alt="" /> : <ImagePlaceholder label={`View ${i + 1}`} />}
                   </button>
@@ -256,75 +254,70 @@ const SareeTransformationPage = () => {
               </div>
             </div>
 
-            {/* Info Panel matching Collection Product Page */}
+            {/* ── Info Panel ── */}
             <div className="product-info">
-              <p className="product-info__fabric">{viewingOutfit.fabric || 'Pure Silk'}</p>
-              <h1 className="product-info__name">{viewingOutfit.name}</h1>
-              <p className="product-info__tagline" style={{ color: 'var(--color-gold)', fontWeight: 600 }}>
-                ✨ Saree Transformation Outfit Style
+              <p className="product-info__fabric">{selectedProduct.fabric || 'Pure Silk'}</p>
+              <h1 className="product-info__name">{selectedProduct.name}</h1>
+              <p className="product-info__tagline">
+                {selectedProduct.tagline || `Convert your memorable saree into this custom handcrafted ${selectedProduct.name} outfit.`}
               </p>
 
-              <div className="product-info__price" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
-                <span style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-3xl)', color: 'var(--color-plum)', fontWeight: 700 }}>
-                  ₹{Number(viewingOutfit.sareeTransformationPrice || (Number(viewingOutfit.basePrice || 2499) + 350)).toLocaleString('en-IN')}
-                </span>
-                <span className="product-info__price-label" style={{ background: 'rgba(197, 169, 107, 0.15)', color: 'var(--color-gold)', border: '1px solid rgba(197,169,107,0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700 }}>
-                  Transformation Tailoring Fee (Lining &amp; Stitching Included)
+              <div className="product-info__price">
+                ₹{currentPrice.toLocaleString('en-IN')}
+                <span className="product-info__price-label" style={{ color: 'var(--color-gold)', borderColor: 'var(--color-gold)', background: 'rgba(197,169,107,0.1)' }}>
+                  ✨ Saree Transformation
                 </span>
               </div>
 
               <div>
-                <span className="product-info__stock badge-success" style={{ background: 'var(--color-plum)', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>
-                  Customer Provided Saree Required
+                <span className="product-info__stock" style={{ background: 'rgba(197, 169, 107, 0.15)', color: 'var(--color-gold)', border: '1px solid var(--color-gold)', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 700 }}>
+                  ✨ Custom Handcrafted from Your Saree
                 </span>
               </div>
 
               <div className="divider purchase-options-divider" />
 
-              {/* Purchase / Customization Action Box */}
-              <div className="purchase-options">
-                <div
-                  className="purchase-card purchase-card--saree"
+              {/* Action CTA Section */}
+              <div className="purchase-card purchase-card--custom" style={{ background: 'linear-gradient(135deg, rgba(10,33,70,0.95), rgba(6,22,40,0.98))', border: '1px solid var(--color-gold)', borderRadius: 'var(--radius-md)', padding: 'var(--sp-5)' }}>
+                <p className="purchase-card__type" style={{ color: 'var(--color-gold)', fontSize: 'var(--text-lg)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <Sparkles size={18} color="var(--color-gold)" /> Saree Transformation
+                </p>
+                <p className="purchase-card__price" style={{ color: '#FFEBA3', fontSize: 'var(--text-xl)', fontWeight: 700, margin: '8px 0' }}>
+                  ₹{currentPrice.toLocaleString('en-IN')}
+                </p>
+                <p className="purchase-card__desc" style={{ color: 'var(--color-ivory)', fontSize: 'var(--text-sm)', lineHeight: 1.5, margin: '6px 0 var(--sp-4)' }}>
+                  Upload your saree photo, choose custom neckline &amp; sleeves in 4 interactive steps, and DEVAKI brand artisans will handcraft this <strong>{selectedProduct.name}</strong> outfit from your saree!
+                </p>
+                <button
+                  id="btn-transform-saree-start"
+                  className="btn btn-gold"
+                  style={{ width: '100%', padding: '14px', fontSize: '13px', fontWeight: 700, letterSpacing: '0.05em', gap: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', textTransform: 'uppercase' }}
                   onClick={() => setShowWizard(true)}
-                  style={{
-                    gridColumn: '1 / -1',
-                    background: 'linear-gradient(135deg, rgba(197,169,107,0.15), rgba(10,33,70,0.88))',
-                    border: '1.5px solid var(--color-gold)',
-                    borderRadius: 'var(--radius-lg)',
-                    padding: 'var(--sp-5)',
-                    cursor: 'pointer',
-                    boxShadow: 'var(--shadow-md)'
-                  }}
                 >
-                  <p className="purchase-card__type" style={{ color: 'var(--color-gold)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: 'var(--text-md)', fontWeight: 700 }}>
-                    <Sparkles size={16} /> Transform Your Saree into this Style
-                  </p>
-                  <p className="purchase-card__desc" style={{ color: 'var(--color-ivory)', fontSize: 'var(--text-xs)', margin: '6px 0 12px', lineHeight: 1.5 }}>
-                    Upload your saree photo &amp; choose custom Neckline, Back Neck, Sleeve Style &amp; Made-to-Measure fit in 4 easy steps!
-                  </p>
-                  <button className="btn btn-gold" style={{ width: '100%', padding: '12px 20px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                    <Sparkles size={16} /> Customize My Saree into this Style →
-                  </button>
-                </div>
+                  <Sparkles size={16} /> Transform My Saree into this Style →
+                </button>
               </div>
 
               <div className="divider purchase-options-divider" />
 
               {/* Accordions */}
               <div>
-                <Accordion title="Saree Transformation Details">
-                  <p>Send us 1 old or heirloom saree (Kanjeevaram, Silk, Cotton, Chiffon, or Designer). DEVAKI studio master craftsmen will cut, line, and tailor your saree into this exact <strong>{viewingOutfit.name}</strong> silhouette.</p>
+                <Accordion title="Outfit &amp; Transformation Specs">
+                  <p>Our master tailors inspect your saree's zari border, pallu, and body fabric to craft this <strong>{selectedProduct.name}</strong> silhouette. You can specify neckline cuts, sleeve lengths, and fit preferences in the 4-step customization process.</p>
                 </Accordion>
-                <Accordion title="Tailoring &amp; Fit Inclusions">
-                  <p>Includes high-grade breathable lining, custom neckline choices, sleeve options, and optional made-to-measure tailoring. 24-hour decision and studio confirmation after submission.</p>
-                </Accordion>
-                <Accordion title="How It Works (4 Easy Steps)">
-                  <ol style={{ paddingLeft: '18px', margin: 0, lineHeight: 1.6, fontSize: '13px' }}>
-                    <li>Upload your saree photo &amp; optional border details</li>
-                    <li>Select preferred front neckline &amp; back neck design</li>
-                    <li>Select sleeve style &amp; standard size or custom measurements</li>
-                    <li>Review request &amp; send directly to DEVAKI studio team on WhatsApp</li>
+                <Accordion title="How Saree Transformation Works">
+                  <ol style={{ paddingLeft: '18px', margin: 0, lineHeight: 1.6 }}>
+                    <li><strong>Step 1:</strong> Select this {selectedProduct.name} outfit style.</li>
+                    <li><strong>Step 2:</strong> Upload a photo of your saree (front body &amp; zari border).</li>
+                    <li><strong>Step 3:</strong> Select preferred neckline, sleeves &amp; fit size.</li>
+                    <li><strong>Step 4:</strong> Submit your request &amp; DEVAKI schedules insured doorstep pickup of your saree.</li>
                   </ol>
+                </Accordion>
+                <Accordion title="Fabric &amp; Saree Guidelines">
+                  <p>Standard 5.5m sarees (Silk, Cotton Silk, Chiffon, Georgette, Kanjeevaram) are ideal. Zari borders are artfully placed along the neckline, sleeves, and hemline.</p>
+                </Accordion>
+                <Accordion title="Doorstep Pickup &amp; Insured Shipping">
+                  <p>We provide free insured courier pickup of your saree from your home address across India, and deliver your tailored outfit within 10–14 working days.</p>
                 </Accordion>
               </div>
             </div>
@@ -332,17 +325,17 @@ const SareeTransformationPage = () => {
         </div>
       )}
 
-      {/* ── Customization Wizard Overlay when user clicks "Customize My Saree into this Style" ── */}
-      {viewingOutfit && showWizard && !showContactForm && !submittedOrder && (
+      {/* ── Customization Wizard Overlay when user clicks 'Transform My Saree into this Style' ── */}
+      {selectedProduct && showWizard && !showContactForm && !submittedOrder && (
         <CustomizationWizard
-          product={viewingOutfit}
+          product={selectedProduct}
           isSareeTransformation={true}
           onRequestSubmit={handleWizardSubmit}
           onClose={() => setShowWizard(false)}
         />
       )}
 
-      {/* ── Full Mobile Responsive Request Page View ── */}
+      {/* ── Request Contact Form View ── */}
       {showContactForm && !submittedOrder && (
         <div className="saree-request-page">
           <button type="button" className="saree-back-link" onClick={() => setShowContactForm(false)}>
@@ -434,7 +427,7 @@ const SareeTransformationPage = () => {
         </div>
       )}
 
-      {/* ── Full Mobile Responsive Success Page View ── */}
+      {/* ── Success Message ── */}
       {submittedOrder && (
         <div className="saree-success-page">
           <CheckCircle2 size={56} color="#27AE60" className="saree-success-icon" />
@@ -445,7 +438,7 @@ const SareeTransformationPage = () => {
           </p>
 
           <div className="saree-success-actions">
-            <button className="btn btn-gold" onClick={() => { setSubmittedOrder(null); setShowContactForm(false); setSelectedProduct(null); }}>
+            <button className="btn btn-gold" onClick={() => { setSubmittedOrder(null); setShowContactForm(false); setSelectedProduct(null); setShowWizard(false); }}>
               Transform Another Saree
             </button>
             <button className="btn btn-outline" onClick={() => navigate('/collection')}>
@@ -459,4 +452,3 @@ const SareeTransformationPage = () => {
 };
 
 export default SareeTransformationPage;
-

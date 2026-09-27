@@ -237,9 +237,7 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
           <ChevronLeft size={20} />
         </button>
         <div className="wizard-header__info">
-          <p className="wizard-header__title">
-            {isSareeTransformation ? 'Saree Transformation' : 'Customize Yours'}
-          </p>
+          <p className="wizard-header__title">Customize Yours</p>
           <p className="wizard-header__step">Step {step + 1} of {activeStepNames.length} — {activeStepNames[step]}</p>
         </div>
         <button className="wizard-header__close" onClick={onClose} aria-label="Close">
@@ -698,9 +696,7 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
                 style={{ width: '100%', padding: 'var(--sp-4)', fontSize: 'var(--text-base)' }}
                 onClick={handleFinalAction}
               >
-                {isSareeTransformation
-                  ? 'Submit Saree Transformation Request →'
-                  : (onRequestSubmit ? 'Request to Customize & Name Price →' : 'Add to Cart')}
+                {onRequestSubmit ? 'Request to Customize & Name Price →' : 'Add to Cart'}
               </button>
             </div>
           </>
@@ -711,16 +707,7 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
       {(step < activeStepNames.length - 1 || onRequestSubmit) && (
         <div className="wizard-footer">
           <div className="wizard-footer__price">
-            {isSareeTransformation ? (
-              <>
-                <span className="wizard-footer__price-amount">
-                  ₹{fitBasePrice.toLocaleString('en-IN')}
-                </span>
-                <span className="wizard-footer__price-label">
-                  Transformation Tailoring Fee
-                </span>
-              </>
-            ) : (onRequestSubmit ? (
+            {onRequestSubmit ? (
               <>
                 <span className="wizard-footer__price-amount" style={{ textDecoration: 'line-through', opacity: 0.65, fontSize: '0.85em', marginRight: '6px' }}>
                   ₹{fitBasePrice.toLocaleString('en-IN')}
@@ -738,7 +725,7 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
                   Estimated Total
                 </span>
               </>
-            ))}
+            )}
           </div>
           <button
             id={`wizard-continue-step-${step}`}
@@ -746,9 +733,7 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
             disabled={!canContinue()}
             onClick={handleContinue}
           >
-            {isSareeTransformation
-              ? (step === activeStepNames.length - 1 ? 'Proceed to Saree Request →' : 'Continue →')
-              : (onRequestSubmit && step === activeStepNames.length - 1 ? 'Proceed to Name Price →' : 'Continue →')}
+            {onRequestSubmit && step === activeStepNames.length - 1 ? 'Proceed to Name Price →' : 'Continue →'}
           </button>
         </div>
       )}
