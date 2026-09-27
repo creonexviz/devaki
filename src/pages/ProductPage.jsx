@@ -1,6 +1,6 @@
 // src/pages/ProductPage.jsx
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronLeft, Send, Sparkles } from 'lucide-react';
 import { getStoredProducts, getStockLabel } from '../data/products';
 import { subscribeToProducts } from '../services/firebaseService';
@@ -40,6 +40,7 @@ const Accordion = ({ title, children }) => {
 const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [allProducts, setAllProducts] = useState(() => getStoredProducts());
 
   useEffect(() => {
@@ -50,6 +51,18 @@ const ProductPage = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (location.search.includes('mode=saree') || location.search.includes('saree=true')) {
+      const timer = setTimeout(() => {
+        const sareeCard = document.querySelector('.purchase-card--saree');
+        if (sareeCard) {
+          sareeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [location.search]);
 
   const product = allProducts.find(p => p.id === id);
 
@@ -191,6 +204,18 @@ const ProductPage = () => {
                     </p>
                     <button className="btn btn-outline" style={{ width: '100%', marginTop: 'var(--sp-2)', borderColor: 'var(--color-gold)', color: 'var(--color-gold)' }}>
                       Request to Customize
+                    </button>
+                  </div>
+
+                  <div className="purchase-card purchase-card--saree" onClick={() => setShowSareeModal(true)} style={{ gridColumn: '1 / -1', background: 'linear-gradient(135deg, rgba(197,169,107,0.15), rgba(10,33,70,0.85))', border: '1px solid var(--color-gold)', borderRadius: 'var(--radius-md)', padding: 'var(--sp-4)', cursor: 'pointer', marginTop: 'var(--sp-2)' }}>
+                    <p className="purchase-card__type" style={{ color: 'var(--color-gold)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                      <Sparkles size={14} /> Transform Your Saree
+                    </p>
+                    <p className="purchase-card__desc" style={{ color: 'var(--color-ivory)', fontSize: 'var(--text-xs)', margin: '4px 0' }}>
+                      Upload your saree photo to convert it into this <strong>{product.name}</strong> style!
+                    </p>
+                    <button className="btn btn-gold" style={{ width: '100%', marginTop: 'var(--sp-2)', fontSize: '11px', padding: '6px 12px' }}>
+                      Customize My Saree into this Style →
                     </button>
                   </div>
                 </>

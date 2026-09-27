@@ -20,16 +20,17 @@ const ImagePlaceholder = ({ label }) => (
   </div>
 );
 
-const ProductCard = ({ product, onSelect }) => {
+const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
   const priceNum = Number(product?.sareeTransformationPrice) || (product?.basePrice ? Number(product.basePrice) + 350 : 2849);
 
   return (
     <div
       className="product-card"
-      onClick={onSelect}
-      role="button"
+      onClick={() => navigate(`/product/${product.id}?mode=saree`)}
+      role="link"
       tabIndex={0}
-      onKeyDown={e => e.key === 'Enter' && onSelect()}
+      onKeyDown={e => e.key === 'Enter' && navigate(`/product/${product.id}?mode=saree`)}
     >
       <div className="product-card__image">
         {product?.images?.[0]
@@ -43,7 +44,7 @@ const ProductCard = ({ product, onSelect }) => {
       <div className="product-card__info">
         <p className="product-card__fabric">{product?.fabric || 'Pure Silk'}</p>
         <h3 className="product-card__name">{product?.name || 'DEVAKI Piece'}</h3>
-        <p className="product-card__price">From ₹{priceNum.toLocaleString('en-IN')}</p>
+        <p className="product-card__price">₹{priceNum.toLocaleString('en-IN')}</p>
       </div>
     </div>
   );
@@ -174,7 +175,7 @@ const SareeTransformationPage = () => {
         ) : (
           <div className="collection-grid">
             {activeProducts.map(product => (
-              <ProductCard key={product.id} product={product} onSelect={() => setSelectedProduct(product)} />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )
