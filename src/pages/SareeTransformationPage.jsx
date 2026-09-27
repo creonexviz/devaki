@@ -1,13 +1,14 @@
 // src/pages/SareeTransformationPage.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, CheckCircle2, Phone, MessageSquare, MapPin } from 'lucide-react';
+import { Sparkles, ArrowRight, CheckCircle2, Phone, MessageSquare, MapPin, ChevronLeft, ChevronDown } from 'lucide-react';
 import { MOCK_PRODUCTS, getStockLabel, getStoredProducts } from '../data/products';
 import { subscribeToProducts, saveOrderToFirebase } from '../services/firebaseService';
 import { useVisitorTracking } from '../hooks/useVisitorTracking';
 import CustomizationWizard from '../components/CustomizationWizard';
 import './CollectionPage.css';
 import './SareeTransformationPage.css';
+import './ProductPage.css';
 
 const ImagePlaceholder = ({ label }) => (
   <div className="img-placeholder">
@@ -19,6 +20,23 @@ const ImagePlaceholder = ({ label }) => (
     <span>{label || 'Outfit Photo'}</span>
   </div>
 );
+
+const Accordion = ({ title, children }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="product-accordion">
+      <button
+        type="button"
+        className={`product-accordion__trigger${open ? ' product-accordion__trigger--open' : ''}`}
+        onClick={() => setOpen(o => !o)}
+      >
+        {title}
+        <ChevronDown size={16} />
+      </button>
+      {open && <div className="product-accordion__content">{children}</div>}
+    </div>
+  );
+};
 
 const ProductCard = ({ product, onSelect }) => {
   const priceNum = Number(product?.sareeTransformationPrice) || (product?.basePrice ? Number(product.basePrice) + 350 : 2849);
@@ -147,12 +165,24 @@ const SareeTransformationPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const galleryImages = viewingOutfit ? (
+    (viewingOutfit.images && viewingOutfit.images.length >= 3)
+      ? viewingOutfit.images.slice(0, 3)
+      : [
+          viewingOutfit.images?.[0] || viewingOutfit.image || null,
+          viewingOutfit.images?.[1] || viewingOutfit.images?.[0] || viewingOutfit.image || null,
+          viewingOutfit.images?.[2] || viewingOutfit.images?.[0] || viewingOutfit.image || null
+        ]
+  ) : [];
+
   return (
     <main className="collection-page page-with-sticky-cta">
-      {/* ── Collection Header Style ── */}
-      <header className="collection-page__header">
-        <h1 className="collection-page__title">Saree Transformation</h1>
-      </header>
+      {/* ── Collection Header Style (when browsing grid) ── */}
+      {!viewingOutfit && (
+        <header className="collection-page__header">
+          <h1 className="collection-page__title">Saree Transformation</h1>
+        </header>
+      )}
 
       {/* ── Category Navigation Menu Bar (when browsing grid) ── */}
       {!viewingOutfit && !showContactForm && !submittedOrder && (
@@ -192,116 +222,111 @@ const SareeTransformationPage = () => {
         )
       )}
 
-      {/* ── Dedicated Saree Transformation Outfit Detail View (with 3 Thumbnails) ── */}
+      {/* ── Dedicated Saree Transformation Outfit Detail Page (matching ProductPage.jsx layout) ── */}
       {viewingOutfit && !showWizard && !showContactForm && !submittedOrder && (
-        <div className="saree-detail-view" style={{ maxWidth: '1000px', margin: '0 auto', padding: 'var(--sp-4) var(--sp-4) var(--sp-12)' }}>
-          <button
-            type="button"
-            className="saree-back-link"
-            onClick={() => setViewingOutfit(null)}
-            style={{ marginBottom: 'var(--sp-5)', background: 'none', border: 'none', color: 'var(--color-plum)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 600, fontSize: '14px' }}
-          >
-            ← Back to Saree Transformation Outfits
-          </button>
+        <div className="product-page" style={{ background: 'transparent', minHeight: 'auto' }}>
+          {/* Back Nav Link */}
+          <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: 'var(--sp-3) var(--sp-4) 0' }}>
+            <button className="btn btn-ghost" onClick={() => setViewingOutfit(null)} style={{ gap: 'var(--sp-1)', padding: 'var(--sp-2) 0', color: 'var(--color-plum)' }}>
+              <ChevronLeft size={16} /> Back to Outfits
+            </button>
+          </div>
 
-          <div className="saree-detail-layout" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: 'var(--sp-6)', alignItems: 'start' }}>
-            {/* Gallery: Main Image View + 3 Thumbnails */}
-            <div className="saree-detail-gallery" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
-              <div className="saree-detail-main-img" style={{ width: '100%', aspectRatio: '3/4', borderRadius: 'var(--radius-lg)', overflow: 'hidden', background: '#0A2146', border: '1px solid rgba(197, 169, 107, 0.3)', boxShadow: 'var(--shadow-md)' }}>
-                {viewingOutfit.images?.[activeImage] ? (
-                  <img src={viewingOutfit.images[activeImage]} alt={viewingOutfit.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <div className="product-page__layout">
+            {/* Gallery (Main photo + 3 Thumbnails matching Collection Product Page) */}
+            <div className="product-gallery">
+              <div className="product-gallery__main">
+                {galleryImages[activeImage] ? (
+                  <img src={galleryImages[activeImage]} alt={`${viewingOutfit.name} view ${activeImage + 1}`} />
                 ) : (
-                  <ImagePlaceholder label={viewingOutfit.name} />
+                  <ImagePlaceholder label={`Main Photo — View ${activeImage + 1}`} />
                 )}
               </div>
-
-              {/* 3 Outfit Thumbnail Selectors */}
-              {(() => {
-                const imgs = (viewingOutfit.images && viewingOutfit.images.length > 0)
-                  ? viewingOutfit.images
-                  : [viewingOutfit.image].filter(Boolean);
-                const thumbs = imgs.length >= 3 ? imgs.slice(0, 3) : [imgs[0], imgs[0], imgs[0]].filter(Boolean);
-
-                if (thumbs.length === 0) return null;
-
-                return (
-                  <div className="saree-detail-thumbs" style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                    {thumbs.map((tImg, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => setActiveImage(idx % imgs.length)}
-                        style={{
-                          width: '72px',
-                          height: '72px',
-                          borderRadius: '8px',
-                          overflow: 'hidden',
-                          border: activeImage === (idx % imgs.length) ? '2px solid var(--color-gold)' : '1px solid rgba(10,33,70,0.2)',
-                          padding: 0,
-                          cursor: 'pointer',
-                          opacity: activeImage === (idx % imgs.length) ? 1 : 0.7,
-                          transition: 'all 0.2s ease',
-                          boxShadow: activeImage === (idx % imgs.length) ? '0 0 8px rgba(197,169,107,0.5)' : 'none'
-                        }}
-                      >
-                        <img src={tImg} alt={`${viewingOutfit.name} thumbnail ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </button>
-                    ))}
-                  </div>
-                );
-              })()}
+              <div className="product-gallery__thumbs">
+                {galleryImages.map((img, i) => (
+                  <button
+                    key={i}
+                    className={`product-gallery__thumb${activeImage === i ? ' product-gallery__thumb--active' : ''}`}
+                    onClick={() => setActiveImage(i)}
+                    aria-label={`View outfit image ${i + 1}`}
+                  >
+                    {img ? <img src={img} alt="" /> : <ImagePlaceholder label={`View ${i + 1}`} />}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Saree Transformation Info & Customize Action */}
-            <div className="saree-detail-info" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)', background: '#FFFDF9', padding: 'var(--sp-6)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gold-dim)', boxShadow: 'var(--shadow-card)' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-gold)', background: 'rgba(197, 169, 107, 0.12)', padding: '4px 10px', borderRadius: '4px', width: 'fit-content', border: '1px solid rgba(197,169,107,0.3)' }}>
+            {/* Info Panel matching Collection Product Page */}
+            <div className="product-info">
+              <p className="product-info__fabric">{viewingOutfit.fabric || 'Pure Silk'}</p>
+              <h1 className="product-info__name">{viewingOutfit.name}</h1>
+              <p className="product-info__tagline" style={{ color: 'var(--color-gold)', fontWeight: 600 }}>
                 ✨ Saree Transformation Outfit Style
-              </span>
-
-              <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-3xl)', color: 'var(--color-plum)', margin: 0 }}>
-                {viewingOutfit.name}
-              </h1>
-
-              <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--text-sm)', margin: 0 }}>
-                Fabric Source: <strong>Your Saree (Customer Uploaded)</strong>
               </p>
 
-              <div style={{ background: 'rgba(10, 33, 70, 0.04)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(10, 33, 70, 0.1)' }}>
-                <p style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--color-gold)', fontWeight: 700, letterSpacing: '0.05em', margin: 0 }}>
-                  Transformation Tailoring Fee
-                </p>
-                <p style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-2xl)', color: 'var(--color-plum)', margin: '4px 0 0', fontWeight: 700 }}>
+              <div className="product-info__price" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                <span style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-3xl)', color: 'var(--color-plum)', fontWeight: 700 }}>
                   ₹{Number(viewingOutfit.sareeTransformationPrice || (Number(viewingOutfit.basePrice || 2499) + 350)).toLocaleString('en-IN')}
-                </p>
-                <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: '2px 0 0' }}>
-                  Includes complete custom stitching, high-grade lining &amp; made-to-measure fit.
-                </p>
+                </span>
+                <span className="product-info__price-label" style={{ background: 'rgba(197, 169, 107, 0.15)', color: 'var(--color-gold)', border: '1px solid rgba(197,169,107,0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700 }}>
+                  Transformation Tailoring Fee (Lining &amp; Stitching Included)
+                </span>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '4px 0' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                  <Sparkles size={16} color="var(--color-gold)" style={{ flexShrink: 0, marginTop: '2px' }} />
-                  <p style={{ fontSize: '13px', color: 'var(--color-plum)', margin: 0 }}>
-                    <strong>Saree Requirement:</strong> 1 Old / Heirloom Saree (Silk, Kanjeevaram, Cotton, Chiffon, or Designer)
+              <div>
+                <span className="product-info__stock badge-success" style={{ background: 'var(--color-plum)', color: 'var(--color-gold)', borderColor: 'var(--color-gold)' }}>
+                  Customer Provided Saree Required
+                </span>
+              </div>
+
+              <div className="divider purchase-options-divider" />
+
+              {/* Purchase / Customization Action Box */}
+              <div className="purchase-options">
+                <div
+                  className="purchase-card purchase-card--saree"
+                  onClick={() => setShowWizard(true)}
+                  style={{
+                    gridColumn: '1 / -1',
+                    background: 'linear-gradient(135deg, rgba(197,169,107,0.15), rgba(10,33,70,0.88))',
+                    border: '1.5px solid var(--color-gold)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: 'var(--sp-5)',
+                    cursor: 'pointer',
+                    boxShadow: 'var(--shadow-md)'
+                  }}
+                >
+                  <p className="purchase-card__type" style={{ color: 'var(--color-gold)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: 'var(--text-md)', fontWeight: 700 }}>
+                    <Sparkles size={16} /> Transform Your Saree into this Style
                   </p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                  <CheckCircle2 size={16} color="var(--color-gold)" style={{ flexShrink: 0, marginTop: '2px' }} />
-                  <p style={{ fontSize: '13px', color: 'var(--color-plum)', margin: 0 }}>
-                    <strong>Tailoring Options:</strong> Choose custom Neckline, Back Neck, Sleeve style &amp; Fit in 4 simple steps
+                  <p className="purchase-card__desc" style={{ color: 'var(--color-ivory)', fontSize: 'var(--text-xs)', margin: '6px 0 12px', lineHeight: 1.5 }}>
+                    Upload your saree photo &amp; choose custom Neckline, Back Neck, Sleeve Style &amp; Made-to-Measure fit in 4 easy steps!
                   </p>
+                  <button className="btn btn-gold" style={{ width: '100%', padding: '12px 20px', fontSize: '13px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    <Sparkles size={16} /> Customize My Saree into this Style →
+                  </button>
                 </div>
               </div>
 
-              {/* Bottom Customize Saree Action Button */}
-              <button
-                type="button"
-                className="btn btn-gold"
-                onClick={() => setShowWizard(true)}
-                style={{ width: '100%', padding: '14px 20px', fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: 'var(--sp-2)' }}
-              >
-                <Sparkles size={18} /> Customize My Saree into this Style →
-              </button>
+              <div className="divider purchase-options-divider" />
+
+              {/* Accordions */}
+              <div>
+                <Accordion title="Saree Transformation Details">
+                  <p>Send us 1 old or heirloom saree (Kanjeevaram, Silk, Cotton, Chiffon, or Designer). DEVAKI studio master craftsmen will cut, line, and tailor your saree into this exact <strong>{viewingOutfit.name}</strong> silhouette.</p>
+                </Accordion>
+                <Accordion title="Tailoring &amp; Fit Inclusions">
+                  <p>Includes high-grade breathable lining, custom neckline choices, sleeve options, and optional made-to-measure tailoring. 24-hour decision and studio confirmation after submission.</p>
+                </Accordion>
+                <Accordion title="How It Works (4 Easy Steps)">
+                  <ol style={{ paddingLeft: '18px', margin: 0, lineHeight: 1.6, fontSize: '13px' }}>
+                    <li>Upload your saree photo &amp; optional border details</li>
+                    <li>Select preferred front neckline &amp; back neck design</li>
+                    <li>Select sleeve style &amp; standard size or custom measurements</li>
+                    <li>Review request &amp; send directly to DEVAKI studio team on WhatsApp</li>
+                  </ol>
+                </Accordion>
+              </div>
             </div>
           </div>
         </div>
