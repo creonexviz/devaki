@@ -279,21 +279,12 @@ const SareeTransformationPage = () => {
 
               <div className="divider purchase-options-divider" />
 
-              {/* Action CTA Section */}
-              <div className="purchase-card purchase-card--custom" style={{ background: 'linear-gradient(135deg, rgba(10,33,70,0.95), rgba(6,22,40,0.98))', border: '1px solid var(--color-gold)', borderRadius: 'var(--radius-md)', padding: 'var(--sp-5)' }}>
-                <p className="purchase-card__type" style={{ color: 'var(--color-gold)', fontSize: 'var(--text-lg)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                  <Sparkles size={18} color="var(--color-gold)" /> Saree Transformation
-                </p>
-                <p className="purchase-card__price" style={{ color: '#FFEBA3', fontSize: 'var(--text-xl)', fontWeight: 700, margin: '8px 0' }}>
-                  ₹{currentPrice.toLocaleString('en-IN')}
-                </p>
-                <p className="purchase-card__desc" style={{ color: 'var(--color-ivory)', fontSize: 'var(--text-sm)', lineHeight: 1.5, margin: '6px 0 var(--sp-4)' }}>
-                  Upload your saree photo, choose custom neckline &amp; sleeves in 4 interactive steps, and DEVAKI brand artisans will handcraft this <strong>{selectedProduct.name}</strong> outfit from your saree!
-                </p>
+              {/* Clean Action Button */}
+              <div style={{ margin: 'var(--sp-4) 0' }}>
                 <button
                   id="btn-transform-saree-start"
                   className="btn btn-gold"
-                  style={{ width: '100%', padding: '14px', fontSize: '13px', fontWeight: 700, letterSpacing: '0.05em', gap: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', textTransform: 'uppercase' }}
+                  style={{ width: '100%', padding: '14px var(--sp-4)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.05em', gap: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', textTransform: 'uppercase' }}
                   onClick={() => setShowWizard(true)}
                 >
                   <Sparkles size={16} /> Transform My Saree into this Style →
