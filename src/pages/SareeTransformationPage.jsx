@@ -279,8 +279,8 @@ const SareeTransformationPage = () => {
 
               <div className="divider purchase-options-divider" />
 
-              {/* Clean Action Button */}
-              <div style={{ margin: 'var(--sp-4) 0' }}>
+              {/* Clean Action Button (Desktop Only — Mobile uses StickyMobileCTA fixed at bottom) */}
+              <div className="saree-desktop-cta" style={{ margin: 'var(--sp-4) 0' }}>
                 <button
                   id="btn-transform-saree-start"
                   className="btn btn-gold"

@@ -1,5 +1,12 @@
 /* src/pages/SareeTransformationPage.css */
 
+/* Hide redundant in-page CTA button on mobile viewports since StickyMobileCTA is fixed at bottom */
+@media (max-width: 1023px) {
+  .saree-desktop-cta {
+    display: none !important;
+  }
+}
+
 .saree-page {
   min-height: 100vh;
   background: var(--color-ivory);

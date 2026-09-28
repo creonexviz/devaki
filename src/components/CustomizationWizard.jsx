@@ -716,6 +716,15 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
                   Your price to buy
                 </span>
               </>
+            ) : isSareeTransformation ? (
+              <>
+                <span className="wizard-footer__price-amount">
+                  ₹{totalPrice.toLocaleString('en-IN')}
+                </span>
+                <span className="wizard-footer__price-label" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>
+                  Saree Transformation Price
+                </span>
+              </>
             ) : (
               <>
                 <span className="wizard-footer__price-amount">
