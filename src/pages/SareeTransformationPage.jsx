@@ -185,10 +185,12 @@ const SareeTransformationPage = () => {
   return (
     <>
       <main className="collection-page page-with-sticky-cta">
-      {/* ── Collection Header Style ── */}
-      <header className="collection-page__header">
-        <h1 className="collection-page__title">Saree Transformation</h1>
-      </header>
+      {/* ── Collection Header Style (Browsing Grid Only) ── */}
+      {!selectedProduct && (
+        <header className="collection-page__header">
+          <h1 className="collection-page__title">Saree Transformation</h1>
+        </header>
+      )}
 
       {/* ── Category Navigation Menu Bar (when browsing outfits grid) ── */}
       {!selectedProduct && !showContactForm && !submittedOrder && (
@@ -223,13 +225,13 @@ const SareeTransformationPage = () => {
       {selectedProduct && !showWizard && !showContactForm && !submittedOrder && (
         <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', width: '100%' }}>
           {/* Back Navigation Button */}
-          <div style={{ padding: '0 var(--sp-4) var(--sp-4)' }}>
+          <div style={{ padding: 'var(--sp-3) var(--sp-4) 0' }}>
             <button
               className="btn btn-ghost"
               onClick={() => setSelectedProduct(null)}
-              style={{ gap: 'var(--sp-1)', padding: 'var(--sp-2) 0', color: 'var(--color-plum)', fontWeight: 600 }}
+              style={{ gap: 'var(--sp-1)', padding: 'var(--sp-2) 0' }}
             >
-              <ChevronLeft size={16} /> All Saree Transformation Outfits
+              <ChevronLeft size={16} /> Saree Transformation
             </button>
           </div>
 
