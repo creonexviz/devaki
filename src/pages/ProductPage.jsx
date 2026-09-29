@@ -248,7 +248,8 @@ const ProductPage = () => {
       {/* Sticky Mobile CTA */}
       <StickyMobileCTA
         price={`₹${product.basePrice.toLocaleString('en-IN')}`}
-        sublabel={isSoldOut ? "Standard price" : "Standard size"}
+        isCrossed={isSoldOut}
+        sublabel={isSoldOut ? "Your price to buy" : "Standard size"}
         label={isSoldOut ? "Request Purchase" : "Add to Cart"}
         onAction={() => {
           if (isSoldOut) {

@@ -152,8 +152,7 @@ const HomePage = () => {
       {/* ── Pricing Banner (How It Works) ────────────────────────── */}
       <section className="pricing-banner">
         <div className="home-section__header">
-          <p className="home-section__label">How It Works</p>
-          <h2 className="home-section__title" style={{ color: 'var(--color-plum)' }}>Bespoke Craftsmanship &amp; Customization</h2>
+          <h2 className="home-section__title" style={{ color: 'var(--color-plum)' }}>How It Works</h2>
         </div>
         <div className="pricing-banner__inner">
           <div className="pricing-card pricing-card--standard">

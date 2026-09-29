@@ -1,11 +1,15 @@
 // src/components/StickyMobileCTA.jsx
 import './StickyMobileCTA.css';
 
-const StickyMobileCTA = ({ price, sublabel = 'Standard price', label, onAction, onSecondary, secondaryLabel }) => (
+const StickyMobileCTA = ({ price, sublabel = 'Standard price', label, onAction, onSecondary, secondaryLabel, isCrossed = false }) => (
   <div className="sticky-cta">
     <div className="sticky-cta__price">
-      <span className="sticky-cta__amount">{price}</span>
-      <span className="sticky-cta__label">{sublabel}</span>
+      <span className={`sticky-cta__amount ${isCrossed ? 'sticky-cta__amount--crossed' : ''}`}>
+        {price}
+      </span>
+      <span className={`sticky-cta__label ${isCrossed ? 'sticky-cta__label--gold' : ''}`}>
+        {sublabel}
+      </span>
     </div>
     <div className="sticky-cta__buttons">
       {onSecondary && (

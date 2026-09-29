@@ -30,11 +30,20 @@
   color: var(--color-plum);
   line-height: 1;
 }
+.sticky-cta__amount--crossed {
+  text-decoration: line-through;
+  opacity: 0.65;
+  font-size: 0.9em;
+}
 .sticky-cta__label {
   font-size: var(--text-xs);
   color: var(--color-text-light);
   margin-top: 2px;
   white-space: nowrap;
+}
+.sticky-cta__label--gold {
+  color: var(--color-gold);
+  font-weight: 700;
 }
 
 .sticky-cta__buttons {
