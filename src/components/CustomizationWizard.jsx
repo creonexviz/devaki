@@ -707,22 +707,22 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
       {(step < activeStepNames.length - 1 || onRequestSubmit) && (
         <div className="wizard-footer">
           <div className="wizard-footer__price">
-            {onRequestSubmit ? (
-              <>
-                <span className="wizard-footer__price-amount" style={{ textDecoration: 'line-through', opacity: 0.65, fontSize: '0.85em', marginRight: '6px' }}>
-                  ₹{fitBasePrice.toLocaleString('en-IN')}
-                </span>
-                <span className="wizard-footer__price-label" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>
-                  Your price to buy
-                </span>
-              </>
-            ) : isSareeTransformation ? (
+            {isSareeTransformation ? (
               <>
                 <span className="wizard-footer__price-amount">
                   ₹{totalPrice.toLocaleString('en-IN')}
                 </span>
                 <span className="wizard-footer__price-label" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>
                   Saree Transformation Price
+                </span>
+              </>
+            ) : onRequestSubmit ? (
+              <>
+                <span className="wizard-footer__price-amount" style={{ textDecoration: 'line-through', opacity: 0.65, fontSize: '0.85em', marginRight: '6px' }}>
+                  ₹{fitBasePrice.toLocaleString('en-IN')}
+                </span>
+                <span className="wizard-footer__price-label" style={{ color: 'var(--color-gold)', fontWeight: 700 }}>
+                  Your price to buy
                 </span>
               </>
             ) : (

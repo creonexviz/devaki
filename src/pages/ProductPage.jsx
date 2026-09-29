@@ -263,7 +263,7 @@ const ProductPage = () => {
         onSecondary={() => {
           setShowCustomize(true);
         }}
-        secondaryLabel={isSoldOut ? "Request Customize" : "Customize Yours"}
+        secondaryLabel={isSoldOut ? "Request Custom" : "Customize Yours"}
       />
 
       {/* Modals */}
