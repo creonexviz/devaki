@@ -11,6 +11,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import TrackOrderPage from './pages/TrackOrderPage';
 import SareeTransformationPage from './pages/SareeTransformationPage';
+import SlotBookingPage from './pages/SlotBookingPage';
 import AdminPanel from './pages/AdminPanel';
 
 // Scroll to top helper component — handles forward, backward (history back), and direct navigation
@@ -70,6 +71,7 @@ const App = () => (
         <Route path="/track-order" element={<CustomerLayout><TrackOrderPage /></CustomerLayout>} />
         <Route path="/saree-transformation" element={<CustomerLayout><SareeTransformationPage /></CustomerLayout>} />
         <Route path="/memorable-saree" element={<CustomerLayout><SareeTransformationPage /></CustomerLayout>} />
+        <Route path="/slot-booking" element={<CustomerLayout><SlotBookingPage /></CustomerLayout>} />
         <Route path="/orders" element={<CustomerLayout><OrderHistoryPage /></CustomerLayout>} />
 
         {/* ── Admin Route (hidden URL) ─────────────────────── */}

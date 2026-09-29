@@ -10,7 +10,7 @@ import {
   Sparkles, Phone, CheckCircle, AlertCircle, Users, Printer,
   ArrowRight, Search, Filter, PlusCircle, Trash2, ShieldCheck, DollarSign,
   Camera, Sliders, Eye, EyeOff, Clock, AlertTriangle, CheckCircle2, X,
-  Menu, Store, ChevronRight, Scissors, Tag, Percent
+  Menu, Store, ChevronRight, Scissors, Tag, Percent, Calendar
 } from 'lucide-react';
 import { MOCK_PRODUCTS, getStockLabel, getStoredProducts } from '../data/products';
 import {
@@ -25,7 +25,13 @@ import {
   saveOrderToFirebase,
   subscribeToCoupons,
   saveCouponToFirebase,
-  deleteCouponFromFirebase
+  deleteCouponFromFirebase,
+  subscribeToSlotBookings,
+  updateSlotBookingStatusInFirebase,
+  deleteSlotBookingFromFirebase,
+  subscribeToBookingCategories,
+  saveBookingCategoryToFirebase,
+  deleteBookingCategoryFromFirebase
 } from '../services/firebaseService';
 import { compressImage } from '../utils/imageCompressor';
 import './AdminPanel.css';
@@ -105,6 +111,12 @@ const AdminSideDrawer = ({ isOpen, onClose, activeTab, onSelectTab }) => {
       title: 'Saree Transformation Orders',
       desc: 'Track custom saree transformation requests',
       icon: <Scissors size={18} color="var(--color-gold)" />,
+    },
+    {
+      id: 'slotBookings',
+      title: 'Slot Bookings & Consultations',
+      desc: 'Customer VIP 30-min consultation slots & categories',
+      icon: <Calendar size={18} color="var(--color-gold)" />,
     },
     {
       id: 'purchaseRequests',
@@ -2111,10 +2123,338 @@ const CouponsTab = ({ triggerToast }) => {
   );
 };
 
+// ── SLOT BOOKINGS TAB ──────────────────────────────────────────
+const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
+  const [bookings, setBookings] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [dateFilter, setDateFilter] = useState('');
+  
+  // Category management modal
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [catName, setCatName] = useState('');
+  const [catDesc, setCatDesc] = useState('');
+  const [catFee, setCatFee] = useState('Free Consultation');
+
+  useEffect(() => {
+    const unsubBookings = subscribeToSlotBookings((data) => {
+      setBookings(data || []);
+    });
+    const unsubCats = subscribeToBookingCategories((cats) => {
+      setCategories(cats || []);
+    });
+    return () => {
+      unsubBookings();
+      unsubCats();
+    };
+  }, []);
+
+  const handleStatusChange = async (bookingId, newStatus) => {
+    await updateSlotBookingStatusInFirebase(bookingId, newStatus);
+    triggerToast(`Booking #${bookingId} status updated to ${newStatus}`, 'success', 'Status Updated');
+  };
+
+  const handleDeleteBooking = (bookingId) => {
+    askConfirm(
+      'Delete Slot Booking',
+      `Are you sure you want to delete slot booking #${bookingId}?`,
+      async () => {
+        await deleteSlotBookingFromFirebase(bookingId);
+        triggerToast(`Slot booking #${bookingId} deleted`, 'info', 'Booking Deleted');
+      }
+    );
+  };
+
+  const handleSaveCategory = async (e) => {
+    e.preventDefault();
+    if (!catName.trim()) return;
+    await saveBookingCategoryToFirebase({
+      name: catName.trim(),
+      description: catDesc.trim(),
+      fee: catFee.trim() || 'Free Consultation'
+    });
+    triggerToast(`Category "${catName.trim()}" saved`, 'success', 'Category Saved');
+    setCatName('');
+    setCatDesc('');
+    setCatFee('Free Consultation');
+    setShowCategoryModal(false);
+  };
+
+  const handleDeleteCategory = (catId, name) => {
+    askConfirm(
+      'Delete Category',
+      `Are you sure you want to delete category "${name}"?`,
+      async () => {
+        await deleteBookingCategoryFromFirebase(catId);
+        triggerToast(`Category "${name}" removed`, 'info', 'Category Deleted');
+      }
+    );
+  };
+
+  const filteredBookings = bookings.filter(b => {
+    const matchesSearch = !search || (
+      b.id?.toLowerCase().includes(search.toLowerCase()) ||
+      b.customerName?.toLowerCase().includes(search.toLowerCase()) ||
+      b.phone?.includes(search) ||
+      b.category?.toLowerCase().includes(search.toLowerCase())
+    );
+    const matchesStatus = statusFilter === 'All' || b.status === statusFilter;
+    const matchesDate = !dateFilter || b.date === dateFilter;
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayBookingsCount = bookings.filter(b => b.date === todayStr).length;
+  const pendingCount = bookings.filter(b => b.status === 'Pending').length;
+
+  return (
+    <div className="admin-tab-content">
+      {/* Header Bar */}
+      <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--sp-4)' }}>
+        <div>
+          <h2 className="admin-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Calendar size={20} color="var(--color-gold)" /> Slot Bookings &amp; Consultations
+          </h2>
+          <p className="admin-subtitle">
+            Manage customer VIP 30-minute consultation slots, reach out directly on WhatsApp, and configure consultation categories.
+          </p>
+        </div>
+
+        <button
+          className="btn btn-gold"
+          onClick={() => setShowCategoryModal(true)}
+          style={{ fontSize: 'var(--text-xs)', padding: 'var(--sp-2) var(--sp-4)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          <PlusCircle size={14} /> Manage Categories &amp; Fees
+        </button>
+      </div>
+
+      {/* Summary KPI Cards */}
+      <div className="admin-kpi-grid">
+        <div className="kpi-card">
+          <span className="kpi-card__label">Total Slot Bookings</span>
+          <span className="kpi-card__value">{bookings.length}</span>
+        </div>
+        <div className="kpi-card">
+          <span className="kpi-card__label">Today's Scheduled Slots</span>
+          <span className="kpi-card__value" style={{ color: 'var(--color-gold)' }}>{todayBookingsCount}</span>
+        </div>
+        <div className="kpi-card">
+          <span className="kpi-card__label">Pending Confirmations</span>
+          <span className="kpi-card__value" style={{ color: '#E8A838' }}>{pendingCount}</span>
+        </div>
+      </div>
+
+      {/* Filter Toolbar */}
+      <div className="admin-filter-bar" style={{ display: 'flex', gap: 'var(--sp-3)', flexWrap: 'wrap', marginBottom: 'var(--sp-6)', alignItems: 'center' }}>
+        <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
+          <input
+            type="text"
+            placeholder="Search customer name, phone, ID..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="slot-input"
+            style={{ paddingLeft: '34px', fontSize: 'var(--text-xs)' }}
+          />
+        </div>
+
+        <select
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+          className="slot-input"
+          style={{ width: 'auto', minWidth: '140px', fontSize: 'var(--text-xs)' }}
+        >
+          <option value="All">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+
+        <input
+          type="date"
+          value={dateFilter}
+          onChange={e => setDateFilter(e.target.value)}
+          className="slot-input"
+          style={{ width: 'auto', fontSize: 'var(--text-xs)' }}
+        />
+        {dateFilter && (
+          <button
+            onClick={() => setDateFilter('')}
+            style={{ background: 'transparent', border: 'none', color: 'var(--color-gold)', cursor: 'pointer', fontSize: 'var(--text-xs)' }}
+          >
+            Clear Date
+          </button>
+        )}
+      </div>
+
+      {/* Bookings List */}
+      {filteredBookings.length === 0 ? (
+        <div className="admin-empty-state">
+          <Calendar size={36} color="var(--color-gold)" style={{ opacity: 0.5, marginBottom: 'var(--sp-2)' }} />
+          <p style={{ fontWeight: 600, color: 'var(--color-plum)' }}>No slot bookings found</p>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>
+            Customer booked consultation slots will appear here in real-time.
+          </p>
+        </div>
+      ) : (
+        <div className="admin-orders-list">
+          {filteredBookings.map(b => (
+            <div key={b.id} className="admin-order-card" style={{ borderLeft: b.status === 'Confirmed' ? '4px solid #4CAF78' : b.status === 'Pending' ? '4px solid #E8A838' : '4px solid #ccc' }}>
+              <div className="admin-order-card__header">
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="admin-order-card__id">#{b.id}</span>
+                    <span className={`admin-order-card__status badge-${b.status?.toLowerCase() || 'pending'}`}>
+                      {b.status}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                    Booked: {new Date(b.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+
+                <select
+                  value={b.status || 'Pending'}
+                  onChange={e => handleStatusChange(b.id, e.target.value)}
+                  style={{
+                    padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--color-ivory-dim)',
+                    fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-plum)', background: 'var(--color-ivory-warm)'
+                  }}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Confirmed">Confirmed</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+
+              <div className="admin-order-card__body" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                <div>
+                  <span className="admin-card-label">Customer Info:</span>
+                  <p style={{ fontWeight: 600, color: 'var(--color-plum)' }}>{b.customerName}</p>
+                  <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>📞 {b.phone}</p>
+                  {b.whatsapp && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-gold)' }}>💬 WA: {b.whatsapp}</p>}
+                </div>
+
+                <div>
+                  <span className="admin-card-label">Slot &amp; Category:</span>
+                  <p style={{ fontWeight: 600, color: 'var(--color-plum)' }}>{b.category}</p>
+                  <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-gold)', fontWeight: 700 }}>
+                    📅 {b.date} · ⏰ {b.slot}
+                  </p>
+                </div>
+
+                {b.notes && (
+                  <div>
+                    <span className="admin-card-label">Customer Notes:</span>
+                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                      "{b.notes}"
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="admin-order-card__footer" style={{ justifyContent: 'space-between' }}>
+                <a
+                  href={`https://wa.me/91${b.whatsapp || b.phone}?text=${encodeURIComponent(`Greetings ${b.customerName}! DEVAKI Studio confirming your ${b.category} consultation slot on ${b.date} at ${b.slot}. Please let us know if you have any preferred style references ready for our call!`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline"
+                  style={{ fontSize: '11px', padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#25D366', borderColor: '#25D366' }}
+                >
+                  <MessageSquare size={13} /> 1-Click WhatsApp Outreach
+                </a>
+
+                <button
+                  onClick={() => handleDeleteBooking(b.id)}
+                  style={{ background: 'transparent', border: 'none', color: '#E87A7A', cursor: 'pointer', fontSize: 'var(--text-xs)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <Trash2 size={13} /> Delete Booking
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Category Management Modal */}
+      {showCategoryModal && (
+        <div className="modal-overlay" onClick={() => setShowCategoryModal(false)}>
+          <div className="modal-container" onClick={e => e.stopPropagation()} style={{ maxWidth: '560px' }}>
+            <div className="modal-header">
+              <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-plum)' }}>Manage Consultation Categories</h3>
+              <button className="modal-close" onClick={() => setShowCategoryModal(false)}>×</button>
+            </div>
+
+            <div style={{ padding: 'var(--sp-4)' }}>
+              <form onSubmit={handleSaveCategory} style={{ background: 'var(--color-ivory-warm)', padding: 'var(--sp-4)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--sp-6)', border: '1px solid var(--color-ivory-dim)' }}>
+                <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-plum)', marginBottom: 'var(--sp-3)' }}>
+                  Add New Category
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)' }}>
+                  <input
+                    type="text"
+                    placeholder="Category Name (e.g. Birthday Couture Consultation)"
+                    value={catName}
+                    onChange={e => setCatName(e.target.value)}
+                    className="slot-input"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Consultation Fee (e.g. Free / ₹499)"
+                    value={catFee}
+                    onChange={e => setCatFee(e.target.value)}
+                    className="slot-input"
+                  />
+                  <textarea
+                    rows={2}
+                    placeholder="Category Description..."
+                    value={catDesc}
+                    onChange={e => setCatDesc(e.target.value)}
+                    className="slot-input slot-textarea"
+                  />
+                  <button type="submit" className="btn btn-gold" style={{ padding: '8px 16px', fontSize: 'var(--text-xs)' }}>
+                    Save Category
+                  </button>
+                </div>
+              </form>
+
+              <h4 style={{ fontSize: 'var(--text-xs)', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-plum)', marginBottom: 'var(--sp-3)' }}>
+                Active Categories ({categories.length})
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', maxHeight: '240px', overflowY: 'auto' }}>
+                {categories.map(c => (
+                  <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#fff', borderRadius: '4px', border: '1px solid var(--color-ivory-dim)' }}>
+                    <div>
+                      <span style={{ fontWeight: 600, color: 'var(--color-plum)', fontSize: 'var(--text-xs)' }}>{c.name}</span>
+                      <span style={{ fontSize: '10px', color: 'var(--color-gold)', marginLeft: '8px', fontWeight: 700 }}>({c.fee || 'Free'})</span>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteCategory(c.id, c.name)}
+                      style={{ background: 'transparent', border: 'none', color: '#E87A7A', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── MAIN ADMIN PANEL CONTAINER ───────────────────────────────
 const TABS = [
   { id: 'collectionOrders', label: 'Collection Orders',        shortLabel: 'Collection', icon: <Package size={14} /> },
   { id: 'sareeOrders',      label: 'Saree Transformation',    shortLabel: 'Saree',      icon: <Scissors size={14} /> },
+  { id: 'slotBookings',     label: 'Slot Bookings',           shortLabel: 'Slots',      icon: <Calendar size={14} /> },
   { id: 'purchaseRequests', label: 'Price & Purchase Requests',shortLabel: 'Quotes',     icon: <DollarSign size={14} /> },
   { id: 'coupons',          label: 'Coupon Codes & Discounts',shortLabel: 'Coupons',    icon: <Tag size={14} /> },
   { id: 'products',         label: 'Add & Manage Garments',   shortLabel: 'Add Item',   icon: <PlusCircle size={14} /> },
@@ -2202,6 +2542,9 @@ const AdminPanel = () => {
         )}
         {activeTab === 'sareeOrders' && (
           <OrdersTab triggerToast={triggerToast} askConfirm={askConfirm} filterCategory="saree" />
+        )}
+        {activeTab === 'slotBookings' && (
+          <SlotBookingsTab triggerToast={triggerToast} askConfirm={askConfirm} />
         )}
         {activeTab === 'purchaseRequests' && (
           <PurchaseRequestsTab triggerToast={triggerToast} />

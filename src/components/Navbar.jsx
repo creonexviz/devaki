@@ -1,7 +1,7 @@
 // src/components/Navbar.jsx
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingBag, User, UserPlus, LogIn, LogOut, Sparkles, Home, Layers, Phone, Truck, Search, Scissors, Crown } from 'lucide-react';
+import { Menu, X, ShoppingBag, User, UserPlus, LogIn, LogOut, Sparkles, Home, Layers, Phone, Truck, Search, Scissors, Crown, Calendar } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import BridesmaidTeaserModal from './BridesmaidTeaserModal';
 import SareeTransformationModal from './SareeTransformationModal';
@@ -75,6 +75,13 @@ const Navbar = () => {
             >
               <Scissors size={13} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
               <span>Saree Transformation</span>
+            </button>
+            <button
+              className={`navbar__cat-btn${location.pathname === '/slot-booking' ? ' navbar__cat-btn--active' : ''}`}
+              onClick={() => navigate('/slot-booking')}
+            >
+              <Calendar size={13} style={{ display: 'inline-block', verticalAlign: 'middle' }} />
+              <span>Slot Booking</span>
             </button>
             <button
               className="navbar__cat-btn navbar__cat-btn--bm"
@@ -172,6 +179,17 @@ const Navbar = () => {
                     <span>Saree Transformation</span>
                   </div>
                   <span className="menu-panel-badge" style={{ background: 'var(--color-gold)', color: '#061628' }}>Your Saree → Outfit</span>
+                </button>
+
+                <button
+                  className={`menu-panel-item${location.pathname === '/slot-booking' ? ' active' : ''}`}
+                  onClick={() => { navigate('/slot-booking'); setIsMenuOpen(false); }}
+                >
+                  <div className="menu-panel-item__left">
+                    <Calendar size={18} />
+                    <span>Slot Booking</span>
+                  </div>
+                  <span className="menu-panel-badge" style={{ background: 'rgba(197,169,107,0.15)', color: 'var(--color-gold)', border: '1px solid var(--color-gold)' }}>VIP Consultation</span>
                 </button>
 
                 <button

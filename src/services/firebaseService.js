@@ -525,3 +525,167 @@ export const deleteCouponFromFirebase = async (couponId) => {
     await deleteDoc(doc(db, 'coupons', couponId));
   } catch (err) {}
 };
+
+// ── Slot Bookings & Categories Helpers ──────────────────────────
+
+const DEFAULT_BOOKING_CATEGORIES = [
+  { id: 'cat_birthday', name: 'Birthday Couture Consultation', description: 'Custom outfit design, birthday theme matching, fabric selection & fit consultation.', fee: 'Free / ₹499', icon: 'Sparkles', isActive: true },
+  { id: 'cat_bridal', name: 'Bridal Trousseau VIP Consultation', description: 'Complete bridal squad & trousseau outfit planning with lead designer.', fee: 'Free VIP Consultation', icon: 'Crown', isActive: true },
+  { id: 'cat_saree', name: 'Saree Transformation Consultation', description: 'Transform your cherished heirloom saree into a modern lehenga or designer outfit.', fee: 'Free Consultation', icon: 'Scissors', isActive: true },
+  { id: 'cat_custom', name: 'Custom Outfit Consultation', description: 'Bespoke design, made-to-measure sizing, and luxury fabric sourcing.', fee: 'Free Consultation', icon: 'Layers', isActive: true }
+];
+
+export const getStoredBookingCategories = () => {
+  try {
+    const saved = localStorage.getItem('devaki_booking_categories');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+  return DEFAULT_BOOKING_CATEGORIES;
+};
+
+export const subscribeToBookingCategories = (callback) => {
+  try {
+    const q = query(collection(db, 'booking_categories'), orderBy('name', 'asc'));
+    return onSnapshot(q, (snapshot) => {
+      const categories = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      }));
+      const list = categories.length > 0 ? categories : DEFAULT_BOOKING_CATEGORIES;
+      localStorage.setItem('devaki_booking_categories', JSON.stringify(list));
+      window.dispatchEvent(new Event('devaki_categories_updated'));
+      if (callback) callback(list);
+    }, (err) => {
+      if (callback) callback(getStoredBookingCategories());
+    });
+  } catch (e) {
+    if (callback) callback(getStoredBookingCategories());
+    return () => {};
+  }
+};
+
+export const saveBookingCategoryToFirebase = async (catData) => {
+  const catId = catData.id || `cat_${Date.now()}`;
+  const cleanCat = {
+    ...catData,
+    id: catId,
+    name: catData.name?.trim() || 'Custom Consultation',
+    fee: catData.fee?.trim() || 'Free Consultation',
+    description: catData.description?.trim() || '',
+    isActive: catData.isActive !== false,
+    updatedAt: new Date().toISOString()
+  };
+  try {
+    const current = getStoredBookingCategories();
+    const exists = current.some(c => c.id === catId);
+    const updated = exists ? current.map(c => c.id === catId ? cleanCat : c) : [cleanCat, ...current];
+    localStorage.setItem('devaki_booking_categories', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_categories_updated'));
+  } catch (e) {}
+
+  try {
+    await setDoc(doc(db, 'booking_categories', catId), cleanCat, { merge: true });
+  } catch (e) {}
+
+  return cleanCat;
+};
+
+export const deleteBookingCategoryFromFirebase = async (catId) => {
+  try {
+    const current = getStoredBookingCategories();
+    const updated = current.filter(c => c.id !== catId);
+    localStorage.setItem('devaki_booking_categories', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_categories_updated'));
+  } catch (e) {}
+
+  try {
+    await deleteDoc(doc(db, 'booking_categories', catId));
+  } catch (e) {}
+};
+
+export const getStoredSlotBookings = () => {
+  try {
+    const saved = localStorage.getItem('devaki_slot_bookings');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (e) {}
+  return [];
+};
+
+export const subscribeToSlotBookings = (callback) => {
+  try {
+    const q = query(collection(db, 'slot_bookings'), orderBy('createdAt', 'desc'));
+    return onSnapshot(q, (snapshot) => {
+      const bookings = snapshot.docs.map(docSnap => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      }));
+      localStorage.setItem('devaki_slot_bookings', JSON.stringify(bookings));
+      window.dispatchEvent(new Event('devaki_slot_bookings_updated'));
+      if (callback) callback(bookings);
+    }, (err) => {
+      if (callback) callback(getStoredSlotBookings());
+    });
+  } catch (e) {
+    if (callback) callback(getStoredSlotBookings());
+    return () => {};
+  }
+};
+
+export const saveSlotBookingToFirebase = async (bookingData) => {
+  const bookingId = bookingData.id || `SB${Math.floor(100000 + Math.random() * 900000)}`;
+  const cleanBooking = {
+    ...bookingData,
+    id: bookingId,
+    status: bookingData.status || 'Pending',
+    createdAt: bookingData.createdAt || new Date().toISOString()
+  };
+
+  try {
+    const current = getStoredSlotBookings();
+    const updated = [cleanBooking, ...current.filter(b => b.id !== bookingId)];
+    localStorage.setItem('devaki_slot_bookings', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_slot_bookings_updated'));
+  } catch (e) {}
+
+  try {
+    await setDoc(doc(db, 'slot_bookings', bookingId), cleanBooking, { merge: true });
+    if (rtdb) {
+      await setRtdb(ref(rtdb, `slot_bookings/${bookingId}`), cleanBooking);
+    }
+  } catch (e) {}
+
+  return cleanBooking;
+};
+
+export const updateSlotBookingStatusInFirebase = async (bookingId, newStatus) => {
+  try {
+    const current = getStoredSlotBookings();
+    const updated = current.map(b => b.id === bookingId ? { ...b, status: newStatus } : b);
+    localStorage.setItem('devaki_slot_bookings', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_slot_bookings_updated'));
+  } catch (e) {}
+
+  try {
+    await updateDoc(doc(db, 'slot_bookings', bookingId), { status: newStatus, updatedAt: new Date().toISOString() });
+  } catch (e) {}
+};
+
+export const deleteSlotBookingFromFirebase = async (bookingId) => {
+  try {
+    const current = getStoredSlotBookings();
+    const updated = current.filter(b => b.id !== bookingId);
+    localStorage.setItem('devaki_slot_bookings', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_slot_bookings_updated'));
+  } catch (e) {}
+
+  try {
+    await deleteDoc(doc(db, 'slot_bookings', bookingId));
+  } catch (e) {}
+};
+
