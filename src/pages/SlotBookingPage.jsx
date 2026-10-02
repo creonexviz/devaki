@@ -48,6 +48,27 @@ const NECKLINE_OPTIONS = [
   'Designer Choice'
 ];
 
+const EVENT_TIMELINE_OPTIONS = [
+  'Within 1 Week',
+  'In 2–3 Weeks',
+  'This Month',
+  'Next Month',
+  'Custom Date'
+];
+
+const getUpcomingDates = () => {
+  const dates = [];
+  const today = new Date();
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const iso = d.toISOString().split('T')[0];
+    const label = i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    dates.push({ iso, label });
+  }
+  return dates;
+};
+
 const SlotBookingPage = () => {
   const [categories, setCategories] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
@@ -64,7 +85,8 @@ const SlotBookingPage = () => {
   const [outfitStyle, setOutfitStyle] = useState(OUTFIT_STYLE_OPTIONS[0]);
   const [sleeveStyle, setSleeveStyle] = useState(SLEEVE_OPTIONS[0]);
   const [necklineStyle, setNecklineStyle] = useState(NECKLINE_OPTIONS[0]);
-  const [eventDate, setEventDate] = useState('');
+  const [eventTimeline, setEventTimeline] = useState(EVENT_TIMELINE_OPTIONS[0]);
+  const [customEventDate, setCustomEventDate] = useState('');
 
   // Contact Details State (Step 3)
   const [customerName, setCustomerName] = useState('');
@@ -78,6 +100,8 @@ const SlotBookingPage = () => {
   const [submittedBooking, setSubmittedBooking] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const upcomingDates = getUpcomingDates();
 
   // Subscribe to Categories and Existing Bookings
   useEffect(() => {
@@ -146,6 +170,8 @@ const SlotBookingPage = () => {
     setIsSubmitting(true);
     setErrorMessage('');
 
+    const finalEventDate = eventTimeline === 'Custom Date' ? customEventDate || 'Custom' : eventTimeline;
+
     const bookingId = `SLOT-${Math.floor(1000 + Math.random() * 9000)}`;
     const newBooking = {
       id: bookingId,
@@ -157,7 +183,7 @@ const SlotBookingPage = () => {
       outfitStyle,
       sleeveStyle,
       necklineStyle,
-      eventDate: eventDate || 'Not specified',
+      eventDate: finalEventDate,
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
       customerEmail: customerEmail.trim(),
@@ -277,6 +303,24 @@ const SlotBookingPage = () => {
                   <label className="slot-label">
                     <Calendar size={15} color="var(--color-gold)" /> Select Booking Date
                   </label>
+                  
+                  {/* Quick Date Choice Pills */}
+                  <div className="slot-options-flex" style={{ marginBottom: '10px' }}>
+                    {upcomingDates.map((item) => (
+                      <button
+                        key={item.iso}
+                        type="button"
+                        className={`slot-opt-badge ${bookingDate === item.iso ? 'slot-opt-badge--active' : ''}`}
+                        onClick={() => {
+                          setBookingDate(item.iso);
+                          setSelectedSlot('');
+                        }}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+
                   <input
                     type="date"
                     className="slot-input"
@@ -406,16 +450,32 @@ const SlotBookingPage = () => {
                   </div>
                 </div>
 
-                {/* Wearing / Event Date */}
+                {/* Event Timeline / Wearing Date Pills */}
                 <div className="slot-form-group">
                   <label className="slot-label"><Calendar size={15} /> Event / Wearing Date (Optional)</label>
-                  <input
-                    type="date"
-                    className="slot-input"
-                    value={eventDate}
-                    min={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setEventDate(e.target.value)}
-                  />
+                  <div className="slot-options-flex">
+                    {EVENT_TIMELINE_OPTIONS.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`slot-opt-badge ${eventTimeline === opt ? 'slot-opt-badge--active' : ''}`}
+                        onClick={() => setEventTimeline(opt)}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+
+                  {eventTimeline === 'Custom Date' && (
+                    <input
+                      type="date"
+                      className="slot-input"
+                      style={{ marginTop: '10px' }}
+                      value={customEventDate}
+                      min={new Date().toISOString().split('T')[0]}
+                      onChange={(e) => setCustomEventDate(e.target.value)}
+                    />
+                  )}
                 </div>
 
                 <div className="slot-modal-actions">
