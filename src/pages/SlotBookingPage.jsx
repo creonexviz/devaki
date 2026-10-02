@@ -1,6 +1,6 @@
 // src/pages/SlotBookingPage.jsx
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, CheckCircle2, Phone, Sparkles, User, Mail, MessageSquare, ChevronRight, X, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, Phone, Sparkles, User, Mail, MessageSquare, ChevronRight, X, AlertCircle, Scissors, ShieldCheck, Tag } from 'lucide-react';
 import { subscribeToSlotCategories, subscribeToSlotBookings, saveSlotBookingToFirebase } from '../services/firebaseService';
 import Footer from '../components/Footer';
 import './SlotBookingPage.css';
@@ -26,6 +26,27 @@ const AFTERNOON_SLOTS = [
   '05:30 PM - 06:00 PM'
 ];
 
+const OUTFIT_STYLE_OPTIONS = [
+  'Traditional Ethnic (Saree / Lehenga / Anarkali)',
+  'Western Couture (Gown / Designer Dress)',
+  'Indo-Western Fusion (Cape Set / Pre-stitched Draped Saree)'
+];
+
+const SLEEVE_OPTIONS = [
+  'Sleeveless / Spaghetti Straps',
+  'Half Sleeves / Elbow Length',
+  'Full Sleeves / 3/4th Sleeves',
+  'Cap Sleeves / Bell Sleeves',
+  'Open to Designer Recommendation'
+];
+
+const NECKLINE_OPTIONS = [
+  'Sweetheart / Deep V-Neck',
+  'High Neck / Mandarin Collar',
+  'Off-Shoulder / Boat Neck',
+  'Classic Round / Square'
+];
+
 const SlotBookingPage = () => {
   const [categories, setCategories] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
@@ -37,6 +58,14 @@ const SlotBookingPage = () => {
     return today.toISOString().split('T')[0];
   });
   const [selectedSlot, setSelectedSlot] = useState('');
+
+  // Category Preference Questions State (Step 2)
+  const [outfitStyle, setOutfitStyle] = useState(OUTFIT_STYLE_OPTIONS[0]);
+  const [sleeveStyle, setSleeveStyle] = useState(SLEEVE_OPTIONS[0]);
+  const [necklineStyle, setNecklineStyle] = useState(NECKLINE_OPTIONS[0]);
+  const [eventDate, setEventDate] = useState('');
+
+  // Contact Details State (Step 3)
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -44,7 +73,7 @@ const SlotBookingPage = () => {
   
   // UI States
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [bookingStep, setBookingStep] = useState(1); // 1: Date & Time, 2: Customer Details, 3: Success
+  const [bookingStep, setBookingStep] = useState(1); // 1: Date & Time, 2: Design Questions, 3: Contact Info, 4: Success
   const [submittedBooking, setSubmittedBooking] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -97,6 +126,11 @@ const SlotBookingPage = () => {
     setBookingStep(2);
   };
 
+  const handleStep2Next = () => {
+    setErrorMessage('');
+    setBookingStep(3);
+  };
+
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
     if (!customerName.trim()) {
@@ -119,6 +153,10 @@ const SlotBookingPage = () => {
       categoryPrice: selectedCategory?.price || 0,
       date: bookingDate,
       timeSlot: selectedSlot,
+      outfitStyle,
+      sleeveStyle,
+      necklineStyle,
+      eventDate: eventDate || 'Not specified',
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
       customerEmail: customerEmail.trim(),
@@ -130,7 +168,7 @@ const SlotBookingPage = () => {
     try {
       await saveSlotBookingToFirebase(newBooking);
       setSubmittedBooking(newBooking);
-      setBookingStep(3);
+      setBookingStep(4);
     } catch (err) {
       setErrorMessage('Failed to save booking. Please try again or WhatsApp us directly.');
     } finally {
@@ -209,12 +247,13 @@ const SlotBookingPage = () => {
           <div className="slot-modal-content" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="slot-modal-header">
-              <div>
+              <div style={{ flex: 1, minWidth: 0, paddingRight: '8px' }}>
                 <span className="slot-modal-category">{selectedCategory.name}</span>
                 <h2 className="slot-modal-title">
-                  {bookingStep === 1 && 'Step 1: Choose Date & 30-Min Time Slot'}
-                  {bookingStep === 2 && 'Step 2: Customer Contact Information'}
-                  {bookingStep === 3 && 'Slot Confirmed Successfully!'}
+                  {bookingStep === 1 && 'Step 1: Date & Time'}
+                  {bookingStep === 2 && 'Step 2: Style & Preferences'}
+                  {bookingStep === 3 && 'Step 3: Contact Details'}
+                  {bookingStep === 4 && 'Slot Confirmed Successfully!'}
                 </h2>
               </div>
               <button className="slot-modal-close" onClick={closeModal} aria-label="Close modal">
@@ -299,6 +338,78 @@ const SlotBookingPage = () => {
 
                 <div className="slot-modal-actions">
                   <button className="btn btn-gold slot-next-btn" onClick={handleStep1Next}>
+                    <span>Continue to Style Preferences</span>
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Customization & Style Questions */}
+            {bookingStep === 2 && (
+              <div className="slot-step-body">
+                <div className="slot-summary-card">
+                  <div className="slot-summary-row">
+                    <span>Selected Slot:</span>
+                    <strong style={{ color: 'var(--color-gold)' }}>{bookingDate} ({selectedSlot})</strong>
+                  </div>
+                </div>
+
+                <div className="slot-form-group">
+                  <label className="slot-label"><Scissors size={15} /> Preferred Outfit Style / Silhouette</label>
+                  <select
+                    className="slot-input"
+                    value={outfitStyle}
+                    onChange={(e) => setOutfitStyle(e.target.value)}
+                  >
+                    {OUTFIT_STYLE_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="slot-form-group">
+                  <label className="slot-label"><Sparkles size={15} /> Sleeve Pattern Preference</label>
+                  <select
+                    className="slot-input"
+                    value={sleeveStyle}
+                    onChange={(e) => setSleeveStyle(e.target.value)}
+                  >
+                    {SLEEVE_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="slot-form-group">
+                  <label className="slot-label"><Tag size={15} /> Neckline Design Preference</label>
+                  <select
+                    className="slot-input"
+                    value={necklineStyle}
+                    onChange={(e) => setNecklineStyle(e.target.value)}
+                  >
+                    {NECKLINE_OPTIONS.map(opt => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="slot-form-group">
+                  <label className="slot-label"><Calendar size={15} /> Event / Wearing Date (Optional)</label>
+                  <input
+                    type="date"
+                    className="slot-input"
+                    value={eventDate}
+                    min={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => setEventDate(e.target.value)}
+                  />
+                </div>
+
+                <div className="slot-modal-actions">
+                  <button type="button" className="btn btn-ghost" onClick={() => setBookingStep(1)}>
+                    ← Back
+                  </button>
+                  <button type="button" className="btn btn-gold slot-next-btn" onClick={handleStep2Next}>
                     <span>Continue to Contact Details</span>
                     <ChevronRight size={16} />
                   </button>
@@ -306,8 +417,8 @@ const SlotBookingPage = () => {
               </div>
             )}
 
-            {/* Step 2: Customer Contact Information */}
-            {bookingStep === 2 && (
+            {/* Step 3: Customer Contact Information */}
+            {bookingStep === 3 && (
               <form className="slot-step-body" onSubmit={handleFinalSubmit}>
                 <div className="slot-summary-card">
                   <div className="slot-summary-row">
@@ -315,8 +426,12 @@ const SlotBookingPage = () => {
                     <strong>{selectedCategory.name}</strong>
                   </div>
                   <div className="slot-summary-row">
-                    <span>Date &amp; Time:</span>
+                    <span>Slot:</span>
                     <strong style={{ color: 'var(--color-gold)' }}>{bookingDate} ({selectedSlot})</strong>
+                  </div>
+                  <div className="slot-summary-row">
+                    <span>Style:</span>
+                    <strong>{outfitStyle.split(' ')[0]} · {sleeveStyle.split('/')[0]}</strong>
                   </div>
                 </div>
 
@@ -356,10 +471,10 @@ const SlotBookingPage = () => {
                 </div>
 
                 <div className="slot-form-group">
-                  <label className="slot-label"><MessageSquare size={15} /> Special Requests / Event Details (Optional)</label>
+                  <label className="slot-label"><MessageSquare size={15} /> Special Requests / Design Notes (Optional)</label>
                   <textarea
                     rows={2}
-                    placeholder="Mention any custom design requirements, saree details, or event dates..."
+                    placeholder="Mention any custom fabric preferences, saree details, or special requests..."
                     className="slot-input"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -367,7 +482,7 @@ const SlotBookingPage = () => {
                 </div>
 
                 <div className="slot-modal-actions">
-                  <button type="button" className="btn btn-ghost" onClick={() => setBookingStep(1)}>
+                  <button type="button" className="btn btn-ghost" onClick={() => setBookingStep(2)}>
                     ← Back
                   </button>
                   <button type="submit" disabled={isSubmitting} className="btn btn-gold slot-next-btn">
@@ -377,8 +492,8 @@ const SlotBookingPage = () => {
               </form>
             )}
 
-            {/* Step 3: Success Screen */}
-            {bookingStep === 3 && submittedBooking && (
+            {/* Step 4: Success Screen */}
+            {bookingStep === 4 && submittedBooking && (
               <div className="slot-step-body slot-success-view">
                 <CheckCircle2 size={54} color="var(--color-gold)" style={{ margin: '0 auto' }} />
                 <h3 className="slot-success-title">Slot Reserved Successfully!</h3>
@@ -394,12 +509,12 @@ const SlotBookingPage = () => {
                     <strong style={{ color: 'var(--color-gold)' }}>{submittedBooking.date} @ {submittedBooking.timeSlot}</strong>
                   </div>
                   <div className="slot-summary-row">
-                    <span>Name:</span>
-                    <strong>{submittedBooking.customerName}</strong>
+                    <span>Style &amp; Sleeves:</span>
+                    <strong>{submittedBooking.outfitStyle?.split(' ')[0]} ({submittedBooking.sleeveStyle?.split('/')[0]})</strong>
                   </div>
                   <div className="slot-summary-row">
-                    <span>Phone:</span>
-                    <strong>{submittedBooking.customerPhone}</strong>
+                    <span>Name &amp; Phone:</span>
+                    <strong>{submittedBooking.customerName} ({submittedBooking.customerPhone})</strong>
                   </div>
                 </div>
 
@@ -410,7 +525,7 @@ const SlotBookingPage = () => {
                 <div className="slot-success-actions">
                   <a
                     href={`https://wa.me/918555074387?text=${encodeURIComponent(
-                      `Hello DEVAKI Studio! I have booked a consultation slot (#${submittedBooking.id}) for ${submittedBooking.categoryName} on ${submittedBooking.date} at ${submittedBooking.timeSlot}. Customer Name: ${submittedBooking.customerName}.`
+                      `Hello DEVAKI Studio! I have booked a consultation slot (#${submittedBooking.id}) for ${submittedBooking.categoryName} on ${submittedBooking.date} at ${submittedBooking.timeSlot}.\nStyle: ${submittedBooking.outfitStyle} (${submittedBooking.sleeveStyle}).\nCustomer Name: ${submittedBooking.customerName}.`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"

@@ -2253,24 +2253,26 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
     <div className="tab-pane">
       <div className="tab-pane__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 className="tab-pane__title">Slot Bookings &amp; Category Management</h2>
-          <p className="tab-pane__subtitle">Manage 30-minute VIP consultation slot categories and track customer bookings.</p>
+          <h2 className="admin-section-title" style={{ margin: 0 }}>Slot Bookings &amp; Categories</h2>
+          <p style={{ fontSize: '13px', color: 'rgba(250,247,242,0.6)', margin: '4px 0 0' }}>
+            Manage 30-minute VIP consultation slot categories and track customer bookings.
+          </p>
         </div>
 
-        {/* Sub-tab navigation */}
-        <div style={{ display: 'flex', gap: '8px' }}>
+        {/* Sub-tab navigation aligned with Admin Tabs */}
+        <div className="admin-tabs" style={{ background: 'rgba(250,247,242,0.04)', padding: '4px', borderRadius: 'var(--radius-md)' }}>
           <button
-            className={`btn ${subTab === 'bookings' ? 'btn-primary' : 'btn-outline'}`}
+            className={`admin-tab${subTab === 'bookings' ? ' admin-tab--active' : ''}`}
             onClick={() => setSubTab('bookings')}
-            style={{ padding: '8px 14px', fontSize: '13px' }}
+            style={{ padding: '8px 16px', fontSize: '12px' }}
           >
             <Calendar size={14} />
             <span>Customer Bookings ({bookings.length})</span>
           </button>
           <button
-            className={`btn ${subTab === 'categories' ? 'btn-primary' : 'btn-outline'}`}
+            className={`admin-tab${subTab === 'categories' ? ' admin-tab--active' : ''}`}
             onClick={() => setSubTab('categories')}
-            style={{ padding: '8px 14px', fontSize: '13px' }}
+            style={{ padding: '8px 16px', fontSize: '12px' }}
           >
             <Layers size={14} />
             <span>Slot Categories ({categories.length})</span>
@@ -2281,9 +2283,9 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
       {/* ── SUB-TAB 1: CUSTOMER BOOKINGS ──────────────────────── */}
       {subTab === 'bookings' && (
         <>
-          <div className="admin-filters-bar" style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          <div className="admin-filters-bar" style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
             <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
-              <Search size={15} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#718096' }} />
+              <Search size={15} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(250,247,242,0.5)' }} />
               <input
                 type="text"
                 placeholder="Search by customer name, phone, slot ID..."
@@ -2309,13 +2311,13 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
           </div>
 
           {filteredBookings.length === 0 ? (
-            <div className="empty-state">
+            <div className="empty-state" style={{ background: 'rgba(250,247,242,0.04)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(197,169,107,0.12)' }}>
               <Calendar size={36} color="var(--color-gold)" />
-              <h3>No Slot Bookings Found</h3>
-              <p>No customer has booked a consultation slot under this filter yet.</p>
+              <h3 style={{ color: 'var(--color-ivory)', marginTop: '12px' }}>No Slot Bookings Found</h3>
+              <p style={{ color: 'rgba(250,247,242,0.5)' }}>No customer has booked a consultation slot under this filter yet.</p>
             </div>
           ) : (
-            <div className="table-responsive">
+            <div className="table-responsive" style={{ borderRadius: 'var(--radius-lg)', border: '1px solid rgba(197,169,107,0.15)' }}>
               <table className="stock-table">
                 <thead>
                   <tr>
@@ -2323,6 +2325,7 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
                     <th>Customer Details</th>
                     <th>Category Booked</th>
                     <th>Date &amp; 30-Min Time Slot</th>
+                    <th>Design Preferences</th>
                     <th>Notes</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -2332,39 +2335,50 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
                   {filteredBookings.map((b) => (
                     <tr key={b.id}>
                       <td>
-                        <strong style={{ color: 'var(--color-plum)' }}>#{b.id}</strong>
+                        <strong style={{ color: 'var(--color-gold)', letterSpacing: '0.05em' }}>#{b.id}</strong>
                         <br />
-                        <span style={{ fontSize: '11px', color: '#718096' }}>
+                        <span style={{ fontSize: '11px', color: 'rgba(250,247,242,0.5)' }}>
                           {new Date(b.createdAt || Date.now()).toLocaleDateString('en-IN')}
                         </span>
                       </td>
 
                       <td>
-                        <strong>{b.customerName}</strong>
+                        <strong style={{ color: 'var(--color-ivory)' }}>{b.customerName}</strong>
                         <br />
-                        <span style={{ fontSize: '12px', color: 'var(--color-gold)' }}>📞 {b.customerPhone}</span>
+                        <span style={{ fontSize: '12px', color: 'var(--color-gold)', fontWeight: 600 }}>📞 {b.customerPhone}</span>
                         {b.customerEmail && (
-                          <div style={{ fontSize: '11px', color: '#718096' }}>{b.customerEmail}</div>
+                          <div style={{ fontSize: '11px', color: 'rgba(250,247,242,0.5)' }}>{b.customerEmail}</div>
                         )}
                       </td>
 
                       <td>
-                        <span style={{ fontWeight: 600 }}>{b.categoryName}</span>
+                        <span style={{ fontWeight: 600, color: 'var(--color-ivory)' }}>{b.categoryName}</span>
                         <br />
-                        <span style={{ fontSize: '11px', color: '#718096' }}>
-                          {b.categoryPrice > 0 ? `₹${b.categoryPrice}` : 'Complimentary'}
+                        <span style={{ fontSize: '11px', color: 'rgba(250,247,242,0.5)' }}>
+                          {b.categoryPrice > 0 ? `Fee: ₹${b.categoryPrice}` : 'Complimentary'}
                         </span>
                       </td>
 
                       <td>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(197,169,107,0.15)', border: '1px solid var(--color-gold)', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', fontWeight: 700, color: 'var(--color-plum)' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(197,169,107,0.15)', border: '1px solid var(--color-gold)', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', fontWeight: 700, color: 'var(--color-gold)' }}>
                           <Clock size={13} color="var(--color-gold)" />
                           <span>{b.date} @ {b.timeSlot}</span>
                         </div>
                       </td>
 
                       <td>
-                        <span style={{ fontSize: '12px', color: '#4A5568' }}>
+                        <div style={{ fontSize: '11px', color: 'rgba(250,247,242,0.85)', lineHeight: '1.4' }}>
+                          <div><strong>Style:</strong> {b.outfitStyle ? b.outfitStyle.split(' ')[0] : 'Not specified'}</div>
+                          <div><strong>Sleeves:</strong> {b.sleeveStyle ? b.sleeveStyle.split('/')[0] : 'Standard'}</div>
+                          <div><strong>Neckline:</strong> {b.necklineStyle ? b.necklineStyle.split('/')[0] : 'Standard'}</div>
+                          {b.eventDate && b.eventDate !== 'Not specified' && (
+                            <div style={{ color: 'var(--color-gold)', fontWeight: 600 }}>📅 Needed: {b.eventDate}</div>
+                          )}
+                        </div>
+                      </td>
+
+                      <td>
+                        <span style={{ fontSize: '12px', color: 'rgba(250,247,242,0.7)' }}>
                           {b.notes || '—'}
                         </span>
                       </td>
@@ -2376,7 +2390,8 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
                           onChange={(e) => handleUpdateBookingStatus(b.id, e.target.value)}
                           style={{
                             fontSize: '12px', padding: '4px 8px', fontWeight: 700,
-                            borderColor: b.status === 'Completed' ? '#38A169' : b.status === 'Contacted' ? '#3182CE' : b.status === 'Cancelled' ? '#E53E3E' : '#DD6B20'
+                            borderColor: b.status === 'Completed' ? '#38A169' : b.status === 'Contacted' ? '#3182CE' : b.status === 'Cancelled' ? '#E53E3E' : '#DD6B20',
+                            background: 'rgba(6,22,40,0.8)', color: 'var(--color-ivory)'
                           }}
                         >
                           <option value="Pending">Pending</option>
@@ -2390,7 +2405,7 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
                         <div style={{ display: 'flex', gap: '6px' }}>
                           <a
                             href={`https://wa.me/91${b.customerPhone?.replace(/\D/g, '')}?text=${encodeURIComponent(
-                              `Hello ${b.customerName}! DEVAKI Studio here regarding your consultation slot booking (#${b.id}) for ${b.categoryName} on ${b.date} at ${b.timeSlot}. How can we assist you?`
+                              `Hello ${b.customerName}! DEVAKI Studio here regarding your consultation slot booking (#${b.id}) for ${b.categoryName} on ${b.date} at ${b.timeSlot}.\nStyle Preference: ${b.outfitStyle || 'Custom'} (${b.sleeveStyle || 'Standard'}).\nHow can we assist you?`
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -2427,11 +2442,11 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
           {/* Category Add/Edit Form */}
           <form className="admin-card" onSubmit={handleSaveCategory} style={{ padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--color-plum)' }}>
+              <h3 style={{ margin: 0, fontFamily: 'var(--font-heading)', color: 'var(--color-ivory)' }}>
                 {editingCategory ? `Edit Category: ${editingCategory.name}` : 'Add New Slot Booking Category'}
               </h3>
               {editingCategory && (
-                <button type="button" className="btn btn-ghost" onClick={handleClearCatForm} style={{ fontSize: '12px' }}>
+                <button type="button" className="btn btn-ghost" onClick={handleClearCatForm} style={{ fontSize: '12px', color: 'var(--color-gold)' }}>
                   + Add New Category Instead
                 </button>
               )}
@@ -2498,7 +2513,7 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '10px' }}>
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: 'var(--color-plum)' }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, color: 'var(--color-ivory)' }}>
                 <input
                   type="checkbox"
                   checked={catIsActive}
@@ -2515,7 +2530,7 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
 
           {/* Active / Inactive Grid Inventory */}
           <div>
-            <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-plum)', marginBottom: '14px' }}>
+            <h3 style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-ivory)', marginBottom: '14px' }}>
               Current Categories Grid ({categories.length})
             </h3>
 
@@ -2526,11 +2541,11 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
                   className="admin-card"
                   style={{
                     padding: '0', overflow: 'hidden', display: 'flex', flexDirection: 'column',
-                    border: `1px solid ${cat.isActive !== false ? 'var(--color-gold)' : '#CBD5E0'}`,
+                    border: `1px solid ${cat.isActive !== false ? 'var(--color-gold)' : 'rgba(255,255,255,0.1)'}`,
                     opacity: cat.isActive !== false ? 1 : 0.65
                   }}
                 >
-                  <div style={{ position: 'relative', height: '140px', background: 'var(--color-ivory-warm)' }}>
+                  <div style={{ position: 'relative', height: '140px', background: 'rgba(6,22,40,0.8)' }}>
                     <img src={cat.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80'} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     <span
                       style={{
@@ -2545,13 +2560,13 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
                   </div>
 
                   <div style={{ padding: '14px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <h4 style={{ margin: '0 0 4px', fontSize: '15px', color: 'var(--color-plum)' }}>{cat.name}</h4>
-                    <p style={{ margin: '0 0 8px', fontSize: '12px', color: 'var(--color-gold-dark)', fontWeight: 600 }}>{cat.tagline}</p>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-plum)', marginBottom: '12px' }}>
+                    <h4 style={{ margin: '0 0 4px', fontSize: '15px', color: 'var(--color-ivory)', fontFamily: 'var(--font-heading)' }}>{cat.name}</h4>
+                    <p style={{ margin: '0 0 8px', fontSize: '12px', color: 'var(--color-gold)', fontWeight: 600 }}>{cat.tagline}</p>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(250,247,242,0.85)', marginBottom: '12px' }}>
                       Fee: {cat.price > 0 ? `₹${cat.price.toLocaleString('en-IN')}` : 'Complimentary'}
                     </div>
 
-                    <div style={{ marginTop: 'auto', display: 'flex', gap: '8px', paddingTop: '10px', borderTop: '1px solid var(--color-ivory-dim)' }}>
+                    <div style={{ marginTop: 'auto', display: 'flex', gap: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                       <button
                         className={`btn ${cat.isActive !== false ? 'btn-outline' : 'btn-gold'}`}
                         onClick={() => handleToggleCategoryActive(cat)}
