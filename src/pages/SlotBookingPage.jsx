@@ -1,6 +1,6 @@
 // src/pages/SlotBookingPage.jsx
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, CheckCircle2, Phone, Sparkles, User, Mail, MessageSquare, ChevronRight, X, AlertCircle, Scissors, ShieldCheck, Tag } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, Phone, Sparkles, User, Mail, MessageSquare, ChevronRight, X, AlertCircle, Scissors, Tag } from 'lucide-react';
 import { subscribeToSlotCategories, subscribeToSlotBookings, saveSlotBookingToFirebase } from '../services/firebaseService';
 import Footer from '../components/Footer';
 import './SlotBookingPage.css';
@@ -27,23 +27,23 @@ const AFTERNOON_SLOTS = [
 ];
 
 const OUTFIT_STYLE_OPTIONS = [
-  'Traditional Ethnic (Saree / Lehenga / Anarkali)',
-  'Western Couture (Gown / Designer Dress)',
-  'Indo-Western Fusion (Cape Set / Pre-stitched Draped Saree)'
+  'Traditional Ethnic',
+  'Western Couture',
+  'Indo-Western Fusion'
 ];
 
 const SLEEVE_OPTIONS = [
-  'Sleeveless / Spaghetti Straps',
-  'Half Sleeves / Elbow Length',
-  'Full Sleeves / 3/4th Sleeves',
-  'Cap Sleeves / Bell Sleeves',
-  'Open to Designer Recommendation'
+  'Sleeveless',
+  'Half Sleeves',
+  'Full Sleeves',
+  'Cap / Bell',
+  'Designer Choice'
 ];
 
 const NECKLINE_OPTIONS = [
-  'Sweetheart / Deep V-Neck',
-  'High Neck / Mandarin Collar',
-  'Off-Shoulder / Boat Neck',
+  'Sweetheart / Deep V',
+  'High Neck / Collar',
+  'Off-Shoulder / Boat',
   'Classic Round / Square'
 ];
 
@@ -247,13 +247,13 @@ const SlotBookingPage = () => {
           <div className="slot-modal-content" onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="slot-modal-header">
-              <div style={{ flex: 1, minWidth: 0, paddingRight: '8px' }}>
+              <div style={{ flex: 1, minWidth: 0, paddingRight: '6px' }}>
                 <span className="slot-modal-category">{selectedCategory.name}</span>
                 <h2 className="slot-modal-title">
                   {bookingStep === 1 && 'Step 1: Date & Time'}
-                  {bookingStep === 2 && 'Step 2: Style & Preferences'}
+                  {bookingStep === 2 && 'Step 2: Style Preferences'}
                   {bookingStep === 3 && 'Step 3: Contact Details'}
-                  {bookingStep === 4 && 'Slot Confirmed Successfully!'}
+                  {bookingStep === 4 && 'Slot Confirmed!'}
                 </h2>
               </div>
               <button className="slot-modal-close" onClick={closeModal} aria-label="Close modal">
@@ -338,14 +338,14 @@ const SlotBookingPage = () => {
 
                 <div className="slot-modal-actions">
                   <button className="btn btn-gold slot-next-btn" onClick={handleStep1Next}>
-                    <span>Continue to Style Preferences</span>
+                    <span>Next: Style Info</span>
                     <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Step 2: Customization & Style Questions */}
+            {/* Step 2: Touch-Friendly Style Preferences (Interactive Pills) */}
             {bookingStep === 2 && (
               <div className="slot-step-body">
                 <div className="slot-summary-card">
@@ -355,45 +355,58 @@ const SlotBookingPage = () => {
                   </div>
                 </div>
 
+                {/* Outfit Style Pills */}
                 <div className="slot-form-group">
                   <label className="slot-label"><Scissors size={15} /> Preferred Outfit Style / Silhouette</label>
-                  <select
-                    className="slot-input"
-                    value={outfitStyle}
-                    onChange={(e) => setOutfitStyle(e.target.value)}
-                  >
-                    {OUTFIT_STYLE_OPTIONS.map(opt => (
-                      <option key={opt} value={opt}>{opt}</option>
+                  <div className="slot-options-flex">
+                    {OUTFIT_STYLE_OPTIONS.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`slot-opt-badge ${outfitStyle === opt ? 'slot-opt-badge--active' : ''}`}
+                        onClick={() => setOutfitStyle(opt)}
+                      >
+                        {opt}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
+                {/* Sleeve Style Pills */}
                 <div className="slot-form-group">
                   <label className="slot-label"><Sparkles size={15} /> Sleeve Pattern Preference</label>
-                  <select
-                    className="slot-input"
-                    value={sleeveStyle}
-                    onChange={(e) => setSleeveStyle(e.target.value)}
-                  >
-                    {SLEEVE_OPTIONS.map(opt => (
-                      <option key={opt} value={opt}>{opt}</option>
+                  <div className="slot-options-flex">
+                    {SLEEVE_OPTIONS.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`slot-opt-badge ${sleeveStyle === opt ? 'slot-opt-badge--active' : ''}`}
+                        onClick={() => setSleeveStyle(opt)}
+                      >
+                        {opt}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
+                {/* Neckline Style Pills */}
                 <div className="slot-form-group">
                   <label className="slot-label"><Tag size={15} /> Neckline Design Preference</label>
-                  <select
-                    className="slot-input"
-                    value={necklineStyle}
-                    onChange={(e) => setNecklineStyle(e.target.value)}
-                  >
-                    {NECKLINE_OPTIONS.map(opt => (
-                      <option key={opt} value={opt}>{opt}</option>
+                  <div className="slot-options-flex">
+                    {NECKLINE_OPTIONS.map((opt) => (
+                      <button
+                        key={opt}
+                        type="button"
+                        className={`slot-opt-badge ${necklineStyle === opt ? 'slot-opt-badge--active' : ''}`}
+                        onClick={() => setNecklineStyle(opt)}
+                      >
+                        {opt}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
 
+                {/* Wearing / Event Date */}
                 <div className="slot-form-group">
                   <label className="slot-label"><Calendar size={15} /> Event / Wearing Date (Optional)</label>
                   <input
@@ -410,7 +423,7 @@ const SlotBookingPage = () => {
                     ← Back
                   </button>
                   <button type="button" className="btn btn-gold slot-next-btn" onClick={handleStep2Next}>
-                    <span>Continue to Contact Details</span>
+                    <span>Next: Contact Details</span>
                     <ChevronRight size={16} />
                   </button>
                 </div>
@@ -431,7 +444,7 @@ const SlotBookingPage = () => {
                   </div>
                   <div className="slot-summary-row">
                     <span>Style:</span>
-                    <strong>{outfitStyle.split(' ')[0]} · {sleeveStyle.split('/')[0]}</strong>
+                    <strong>{outfitStyle} · {sleeveStyle}</strong>
                   </div>
                 </div>
 
@@ -510,7 +523,7 @@ const SlotBookingPage = () => {
                   </div>
                   <div className="slot-summary-row">
                     <span>Style &amp; Sleeves:</span>
-                    <strong>{submittedBooking.outfitStyle?.split(' ')[0]} ({submittedBooking.sleeveStyle?.split('/')[0]})</strong>
+                    <strong>{submittedBooking.outfitStyle} ({submittedBooking.sleeveStyle})</strong>
                   </div>
                   <div className="slot-summary-row">
                     <span>Name &amp; Phone:</span>
