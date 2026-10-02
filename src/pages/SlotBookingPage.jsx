@@ -36,15 +36,16 @@ const SLEEVE_OPTIONS = [
   'Sleeveless',
   'Half Sleeves',
   'Full Sleeves',
-  'Cap / Bell',
+  'Cap / Bell Sleeves',
   'Designer Choice'
 ];
 
 const NECKLINE_OPTIONS = [
-  'Sweetheart / Deep V',
-  'High Neck / Collar',
-  'Off-Shoulder / Boat',
-  'Classic Round / Square'
+  'Collar / High Neck',
+  'Deep Neck',
+  'Medium Length',
+  'Off-Shoulder / Halter',
+  'Designer Choice'
 ];
 
 const SlotBookingPage = () => {
@@ -251,8 +252,8 @@ const SlotBookingPage = () => {
                 <span className="slot-modal-category">{selectedCategory.name}</span>
                 <h2 className="slot-modal-title">
                   {bookingStep === 1 && 'Step 1: Date & Time'}
-                  {bookingStep === 2 && 'Step 2: Style Preferences'}
-                  {bookingStep === 3 && 'Step 3: Contact Details'}
+                  {bookingStep === 2 && 'Step 2: Style & Preferences'}
+                  {bookingStep === 3 && 'Step 3: Contact Info'}
                   {bookingStep === 4 && 'Slot Confirmed!'}
                 </h2>
               </div>
@@ -338,8 +339,7 @@ const SlotBookingPage = () => {
 
                 <div className="slot-modal-actions">
                   <button className="btn btn-gold slot-next-btn" onClick={handleStep1Next}>
-                    <span>Next: Style Info</span>
-                    <ChevronRight size={16} />
+                    <span>Next Step →</span>
                   </button>
                 </div>
               </div>
@@ -389,9 +389,9 @@ const SlotBookingPage = () => {
                   </div>
                 </div>
 
-                {/* Neckline Style Pills */}
+                {/* Neckline Style Pills (Collar, Deep Neck, Medium Length, Off-Shoulder, Designer Choice) */}
                 <div className="slot-form-group">
-                  <label className="slot-label"><Tag size={15} /> Neckline Design Preference</label>
+                  <label className="slot-label"><Tag size={15} /> Neckline Preference</label>
                   <div className="slot-options-flex">
                     {NECKLINE_OPTIONS.map((opt) => (
                       <button
@@ -423,8 +423,7 @@ const SlotBookingPage = () => {
                     ← Back
                   </button>
                   <button type="button" className="btn btn-gold slot-next-btn" onClick={handleStep2Next}>
-                    <span>Next: Contact Details</span>
-                    <ChevronRight size={16} />
+                    <span>Next: Contact Details →</span>
                   </button>
                 </div>
               </div>
@@ -443,8 +442,8 @@ const SlotBookingPage = () => {
                     <strong style={{ color: 'var(--color-gold)' }}>{bookingDate} ({selectedSlot})</strong>
                   </div>
                   <div className="slot-summary-row">
-                    <span>Style:</span>
-                    <strong>{outfitStyle} · {sleeveStyle}</strong>
+                    <span>Preferences:</span>
+                    <strong>{outfitStyle} · {necklineStyle}</strong>
                   </div>
                 </div>
 
@@ -522,8 +521,8 @@ const SlotBookingPage = () => {
                     <strong style={{ color: 'var(--color-gold)' }}>{submittedBooking.date} @ {submittedBooking.timeSlot}</strong>
                   </div>
                   <div className="slot-summary-row">
-                    <span>Style &amp; Sleeves:</span>
-                    <strong>{submittedBooking.outfitStyle} ({submittedBooking.sleeveStyle})</strong>
+                    <span>Style &amp; Neckline:</span>
+                    <strong>{submittedBooking.outfitStyle} ({submittedBooking.necklineStyle})</strong>
                   </div>
                   <div className="slot-summary-row">
                     <span>Name &amp; Phone:</span>
@@ -538,7 +537,7 @@ const SlotBookingPage = () => {
                 <div className="slot-success-actions">
                   <a
                     href={`https://wa.me/918555074387?text=${encodeURIComponent(
-                      `Hello DEVAKI Studio! I have booked a consultation slot (#${submittedBooking.id}) for ${submittedBooking.categoryName} on ${submittedBooking.date} at ${submittedBooking.timeSlot}.\nStyle: ${submittedBooking.outfitStyle} (${submittedBooking.sleeveStyle}).\nCustomer Name: ${submittedBooking.customerName}.`
+                      `Hello DEVAKI Studio! I have booked a consultation slot (#${submittedBooking.id}) for ${submittedBooking.categoryName} on ${submittedBooking.date} at ${submittedBooking.timeSlot}.\nNeckline/Style: ${submittedBooking.necklineStyle} (${submittedBooking.outfitStyle}).\nCustomer Name: ${submittedBooking.customerName}.`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
