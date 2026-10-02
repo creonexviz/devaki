@@ -186,10 +186,10 @@ const Navbar = () => {
                   onClick={() => { navigate('/slot-booking'); setIsMenuOpen(false); }}
                 >
                   <div className="menu-panel-item__left">
-                    <Calendar size={18} />
+                    <Calendar size={18} color="var(--color-gold)" />
                     <span>Slot Booking</span>
                   </div>
-                  <span className="menu-panel-badge" style={{ background: 'rgba(197,169,107,0.15)', color: 'var(--color-gold)', border: '1px solid var(--color-gold)' }}>VIP Consultation</span>
+                  <span className="menu-panel-badge" style={{ background: 'rgba(197,169,107,0.2)', color: 'var(--color-gold)' }}>VIP 30-Min Slot</span>
                 </button>
 
                 <button

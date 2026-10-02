@@ -526,92 +526,139 @@ export const deleteCouponFromFirebase = async (couponId) => {
   } catch (err) {}
 };
 
-// ── Slot Bookings & Categories Helpers ──────────────────────────
+// ── SLOT BOOKING CATEGORIES & BOOKINGS SYNC ────────────────────
 
-const DEFAULT_BOOKING_CATEGORIES = [
-  { id: 'cat_birthday', name: 'Birthday Couture Consultation', description: 'Custom outfit design, birthday theme matching, fabric selection & fit consultation.', fee: 'Free / ₹499', icon: 'Sparkles', isActive: true },
-  { id: 'cat_bridal', name: 'Bridal Trousseau VIP Consultation', description: 'Complete bridal squad & trousseau outfit planning with lead designer.', fee: 'Free VIP Consultation', icon: 'Crown', isActive: true },
-  { id: 'cat_saree', name: 'Saree Transformation Consultation', description: 'Transform your cherished heirloom saree into a modern lehenga or designer outfit.', fee: 'Free Consultation', icon: 'Scissors', isActive: true },
-  { id: 'cat_custom', name: 'Custom Outfit Consultation', description: 'Bespoke design, made-to-measure sizing, and luxury fabric sourcing.', fee: 'Free Consultation', icon: 'Layers', isActive: true }
+export const DEFAULT_SLOT_CATEGORIES = [
+  {
+    id: 'sc_birthday',
+    name: 'Birthday Couture Consultation',
+    tagline: 'Bespoke birthday outfits designed to make your special day unforgettable.',
+    price: 499,
+    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
+    description: '1-on-1 personal styling session for custom birthday dresses, gowns, and fusion outfits.',
+    isActive: true
+  },
+  {
+    id: 'sc_bridal',
+    name: 'Bridal Couture & Trousseau',
+    tagline: 'Exclusive trousseau & bridal consultation with DEVAKI head designer.',
+    price: 999,
+    image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80',
+    description: 'Comprehensive wedding wardrobe planning, fabric customization, and bridal fittings.',
+    isActive: true
+  },
+  {
+    id: 'sc_saree',
+    name: 'Custom Saree Transformation',
+    tagline: 'Convert your heirloom saree into a modern handcrafted designer ensemble.',
+    price: 299,
+    image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+    description: 'Bring or send your vintage saree and work with our master tailors to transform it into lehengas, kurtis, or cape sets.',
+    isActive: true
+  },
+  {
+    id: 'sc_squad',
+    name: 'Bridesmaid Squad Fitting',
+    tagline: 'Coordinated luxury trousseau & squad fitting for your wedding entourage.',
+    price: 599,
+    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80',
+    description: 'Design matching color-coordinated outfits for up to 10 bridesmaids with custom sizes.',
+    isActive: true
+  }
 ];
 
-export const getStoredBookingCategories = () => {
+export const getStoredSlotCategories = () => {
   try {
-    const saved = localStorage.getItem('devaki_booking_categories');
+    const saved = localStorage.getItem('devaki_slot_categories');
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
   } catch (e) {}
-  return DEFAULT_BOOKING_CATEGORIES;
+  return DEFAULT_SLOT_CATEGORIES;
 };
 
-export const subscribeToBookingCategories = (callback) => {
+export const subscribeToSlotCategories = (callback) => {
   try {
-    const q = query(collection(db, 'booking_categories'), orderBy('name', 'asc'));
-    return onSnapshot(q, (snapshot) => {
-      const categories = snapshot.docs.map(docSnap => ({
+    const cached = getStoredSlotCategories();
+    if (cached && callback) callback(cached);
+
+    const categoriesRef = collection(db, 'slot_categories');
+    return onSnapshot(categoriesRef, (snapshot) => {
+      if (snapshot.empty) {
+        localStorage.setItem('devaki_slot_categories', JSON.stringify(DEFAULT_SLOT_CATEGORIES));
+        if (callback) callback(DEFAULT_SLOT_CATEGORIES);
+        return;
+      }
+
+      const list = snapshot.docs.map(docSnap => ({
         id: docSnap.id,
         ...docSnap.data()
       }));
-      const list = categories.length > 0 ? categories : DEFAULT_BOOKING_CATEGORIES;
-      localStorage.setItem('devaki_booking_categories', JSON.stringify(list));
-      window.dispatchEvent(new Event('devaki_categories_updated'));
+
+      localStorage.setItem('devaki_slot_categories', JSON.stringify(list));
+      window.dispatchEvent(new Event('devaki_slot_categories_updated'));
       if (callback) callback(list);
-    }, (err) => {
-      if (callback) callback(getStoredBookingCategories());
+    }, () => {
+      const fallback = getStoredSlotCategories();
+      if (callback) callback(fallback);
     });
-  } catch (e) {
-    if (callback) callback(getStoredBookingCategories());
+  } catch (err) {
+    const fallback = getStoredSlotCategories();
+    if (callback) callback(fallback);
     return () => {};
   }
 };
 
-export const saveBookingCategoryToFirebase = async (catData) => {
-  const catId = catData.id || `cat_${Date.now()}`;
-  const cleanCat = {
-    ...catData,
+export const saveSlotCategoryToFirebase = async (categoryData) => {
+  const catId = categoryData.id || `sc_${Date.now()}`;
+  const cleanCategory = {
+    ...categoryData,
     id: catId,
-    name: catData.name?.trim() || 'Custom Consultation',
-    fee: catData.fee?.trim() || 'Free Consultation',
-    description: catData.description?.trim() || '',
-    isActive: catData.isActive !== false,
+    name: (categoryData.name || 'Slot Category').trim(),
+    tagline: (categoryData.tagline || '').trim(),
+    price: Number(categoryData.price || 0),
+    image: categoryData.image || '',
+    description: (categoryData.description || '').trim(),
+    isActive: categoryData.isActive !== false,
     updatedAt: new Date().toISOString()
   };
+
   try {
-    const current = getStoredBookingCategories();
+    const current = getStoredSlotCategories();
     const exists = current.some(c => c.id === catId);
-    const updated = exists ? current.map(c => c.id === catId ? cleanCat : c) : [cleanCat, ...current];
-    localStorage.setItem('devaki_booking_categories', JSON.stringify(updated));
-    window.dispatchEvent(new Event('devaki_categories_updated'));
+    const updated = exists ? current.map(c => c.id === catId ? cleanCategory : c) : [cleanCategory, ...current];
+    localStorage.setItem('devaki_slot_categories', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_slot_categories_updated'));
   } catch (e) {}
 
   try {
-    await setDoc(doc(db, 'booking_categories', catId), cleanCat, { merge: true });
-  } catch (e) {}
+    await setDoc(doc(db, 'slot_categories', catId), cleanCategory, { merge: true });
+  } catch (err) {}
 
-  return cleanCat;
+  return cleanCategory;
 };
 
-export const deleteBookingCategoryFromFirebase = async (catId) => {
+export const deleteSlotCategoryFromFirebase = async (catId) => {
   try {
-    const current = getStoredBookingCategories();
+    const current = getStoredSlotCategories();
     const updated = current.filter(c => c.id !== catId);
-    localStorage.setItem('devaki_booking_categories', JSON.stringify(updated));
-    window.dispatchEvent(new Event('devaki_categories_updated'));
+    localStorage.setItem('devaki_slot_categories', JSON.stringify(updated));
+    window.dispatchEvent(new Event('devaki_slot_categories_updated'));
   } catch (e) {}
 
   try {
-    await deleteDoc(doc(db, 'booking_categories', catId));
-  } catch (e) {}
+    await deleteDoc(doc(db, 'slot_categories', catId));
+  } catch (err) {}
 };
+
+// ── BOOKED SLOTS SYNC ──────────────────────────────────────────
 
 export const getStoredSlotBookings = () => {
   try {
     const saved = localStorage.getItem('devaki_slot_bookings');
     if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) return parsed;
+      return JSON.parse(saved);
     }
   } catch (e) {}
   return [];
@@ -619,26 +666,32 @@ export const getStoredSlotBookings = () => {
 
 export const subscribeToSlotBookings = (callback) => {
   try {
-    const q = query(collection(db, 'slot_bookings'), orderBy('createdAt', 'desc'));
-    return onSnapshot(q, (snapshot) => {
-      const bookings = snapshot.docs.map(docSnap => ({
+    const cached = getStoredSlotBookings();
+    if (cached && callback) callback(cached);
+
+    const bookingsRef = collection(db, 'slot_bookings');
+    return onSnapshot(bookingsRef, (snapshot) => {
+      const list = snapshot.docs.map(docSnap => ({
         id: docSnap.id,
         ...docSnap.data()
-      }));
-      localStorage.setItem('devaki_slot_bookings', JSON.stringify(bookings));
+      })).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+      localStorage.setItem('devaki_slot_bookings', JSON.stringify(list));
       window.dispatchEvent(new Event('devaki_slot_bookings_updated'));
-      if (callback) callback(bookings);
-    }, (err) => {
-      if (callback) callback(getStoredSlotBookings());
+      if (callback) callback(list);
+    }, () => {
+      const fallback = getStoredSlotBookings();
+      if (callback) callback(fallback);
     });
-  } catch (e) {
-    if (callback) callback(getStoredSlotBookings());
+  } catch (err) {
+    const fallback = getStoredSlotBookings();
+    if (callback) callback(fallback);
     return () => {};
   }
 };
 
 export const saveSlotBookingToFirebase = async (bookingData) => {
-  const bookingId = bookingData.id || `SB${Math.floor(100000 + Math.random() * 900000)}`;
+  const bookingId = bookingData.id || `SLOT-${Math.floor(1000 + Math.random() * 9000)}`;
   const cleanBooking = {
     ...bookingData,
     id: bookingId,
@@ -655,10 +708,7 @@ export const saveSlotBookingToFirebase = async (bookingData) => {
 
   try {
     await setDoc(doc(db, 'slot_bookings', bookingId), cleanBooking, { merge: true });
-    if (rtdb) {
-      await setRtdb(ref(rtdb, `slot_bookings/${bookingId}`), cleanBooking);
-    }
-  } catch (e) {}
+  } catch (err) {}
 
   return cleanBooking;
 };
@@ -672,8 +722,8 @@ export const updateSlotBookingStatusInFirebase = async (bookingId, newStatus) =>
   } catch (e) {}
 
   try {
-    await updateDoc(doc(db, 'slot_bookings', bookingId), { status: newStatus, updatedAt: new Date().toISOString() });
-  } catch (e) {}
+    await updateDoc(doc(db, 'slot_bookings', bookingId), { status: newStatus });
+  } catch (err) {}
 };
 
 export const deleteSlotBookingFromFirebase = async (bookingId) => {
@@ -686,6 +736,5 @@ export const deleteSlotBookingFromFirebase = async (bookingId) => {
 
   try {
     await deleteDoc(doc(db, 'slot_bookings', bookingId));
-  } catch (e) {}
+  } catch (err) {}
 };
-
