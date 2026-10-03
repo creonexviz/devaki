@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle2, Phone, Sparkles, User, Mail, MessageSquare, ChevronRight, X, AlertCircle, Scissors, Tag } from 'lucide-react';
 import { subscribeToSlotCategories, subscribeToSlotBookings, saveSlotBookingToFirebase } from '../services/firebaseService';
-import Footer from '../components/Footer';
 import './SlotBookingPage.css';
 
 // Operational Hours: 9:00 AM - 12:00 PM & 2:00 PM - 6:00 PM (30 min slots)
@@ -617,9 +616,6 @@ const SlotBookingPage = () => {
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <Footer />
     </>
   );
 };
