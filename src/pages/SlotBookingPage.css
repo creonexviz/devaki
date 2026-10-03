@@ -144,15 +144,15 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: var(--color-plum-deep);
-  color: var(--color-gold);
-  border: 1px solid var(--color-gold);
-  padding: 4px 12px;
+  background: #0A2146;
+  color: #FFEBA3;
+  border: 1.5px solid var(--color-gold);
+  padding: 5px 14px;
   border-radius: var(--radius-full);
   font-size: var(--text-xs);
   font-weight: 700;
   letter-spacing: 0.05em;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 14px rgba(10, 33, 70, 0.45);
 }
 
 .slot-card__content {
