@@ -34,7 +34,24 @@ import {
   deleteSlotBookingFromFirebase
 } from '../services/firebaseService';
 import { compressImage } from '../utils/imageCompressor';
+import birthdayThumb from '../assets/slot-thumbnails/birthday-couture.jpg';
+import bridalThumb from '../assets/slot-thumbnails/bridal-couture.jpg';
+import sareeThumb from '../assets/slot-thumbnails/saree-transformation.jpg';
+import bridesmaidThumb from '../assets/slot-thumbnails/bridesmaid-squad.jpg';
 import './AdminPanel.css';
+
+const getCategoryThumbnail = (cat) => {
+  if (cat?.image && !cat.image.includes('images.unsplash.com')) {
+    return cat.image;
+  }
+  const id = cat?.id || '';
+  const name = (cat?.name || '').toLowerCase();
+  if (id === 'sc_birthday' || name.includes('birthday')) return birthdayThumb;
+  if (id === 'sc_bridal' || name.includes('bridal')) return bridalThumb;
+  if (id === 'sc_saree' || name.includes('saree')) return sareeThumb;
+  if (id === 'sc_squad' || name.includes('bridesmaid')) return bridesmaidThumb;
+  return birthdayThumb;
+};
 
 const STATUS_CONFIG = {
   whatsappSent: { label: 'WhatsApp Message Sent (Payment Pending)', shortLabel: 'WhatsApp Sent', next: 'pending', nextLabel: 'Mark Payment Received', shortNextLabel: 'Payment Received →', bg: '#E67E22' },
@@ -2546,7 +2563,7 @@ const SlotBookingsTab = ({ triggerToast, askConfirm }) => {
                   }}
                 >
                   <div style={{ position: 'relative', height: '140px', background: 'rgba(6,22,40,0.8)' }}>
-                    <img src={cat.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80'} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={getCategoryThumbnail(cat)} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     <span
                       style={{
                         position: 'absolute', top: '10px', right: '10px',

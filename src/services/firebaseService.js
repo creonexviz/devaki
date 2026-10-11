@@ -19,6 +19,10 @@ import {
 import { ref, set as setRtdb, remove as removeRtdb } from 'firebase/database';
 import { db, auth, rtdb } from '../firebase';
 import { getStoredProducts, isMockProduct } from '../data/products';
+import birthdayThumb from '../assets/slot-thumbnails/birthday-couture.jpg';
+import bridalThumb from '../assets/slot-thumbnails/bridal-couture.jpg';
+import sareeThumb from '../assets/slot-thumbnails/saree-transformation.jpg';
+import bridesmaidThumb from '../assets/slot-thumbnails/bridesmaid-squad.jpg';
 
 // Helper to sanitize items for localStorage so base64 strings don't bloat local cache
 const sanitizeForLocalStorage = (data) => {
@@ -534,7 +538,7 @@ export const DEFAULT_SLOT_CATEGORIES = [
     name: 'Birthday Couture Consultation',
     tagline: 'Bespoke birthday outfits designed to make your special day unforgettable.',
     price: 499,
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
+    image: birthdayThumb,
     description: '1-on-1 personal styling session for custom birthday dresses, gowns, and fusion outfits.',
     isActive: true
   },
@@ -543,7 +547,7 @@ export const DEFAULT_SLOT_CATEGORIES = [
     name: 'Bridal Couture & Trousseau',
     tagline: 'Exclusive trousseau & bridal consultation with DEVAKI head designer.',
     price: 999,
-    image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80',
+    image: bridalThumb,
     description: 'Comprehensive wedding wardrobe planning, fabric customization, and bridal fittings.',
     isActive: true
   },
@@ -552,7 +556,7 @@ export const DEFAULT_SLOT_CATEGORIES = [
     name: 'Custom Saree Transformation',
     tagline: 'Convert your heirloom saree into a modern handcrafted designer ensemble.',
     price: 299,
-    image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+    image: sareeThumb,
     description: 'Bring or send your vintage saree and work with our master tailors to transform it into lehengas, kurtis, or cape sets.',
     isActive: true
   },
@@ -561,7 +565,7 @@ export const DEFAULT_SLOT_CATEGORIES = [
     name: 'Bridesmaid Squad Fitting',
     tagline: 'Coordinated luxury trousseau & squad fitting for your wedding entourage.',
     price: 599,
-    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80',
+    image: bridesmaidThumb,
     description: 'Design matching color-coordinated outfits for up to 10 bridesmaids with custom sizes.',
     isActive: true
   }
@@ -572,7 +576,17 @@ export const getStoredSlotCategories = () => {
     const saved = localStorage.getItem('devaki_slot_categories');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(cat => {
+          if (!cat.image || cat.image.includes('images.unsplash.com')) {
+            if (cat.id === 'sc_birthday' || cat.name?.toLowerCase().includes('birthday')) return { ...cat, image: birthdayThumb };
+            if (cat.id === 'sc_bridal' || cat.name?.toLowerCase().includes('bridal')) return { ...cat, image: bridalThumb };
+            if (cat.id === 'sc_saree' || cat.name?.toLowerCase().includes('saree')) return { ...cat, image: sareeThumb };
+            if (cat.id === 'sc_squad' || cat.name?.toLowerCase().includes('bridesmaid')) return { ...cat, image: bridesmaidThumb };
+          }
+          return cat;
+        });
+      }
     }
   } catch (e) {}
   return DEFAULT_SLOT_CATEGORIES;

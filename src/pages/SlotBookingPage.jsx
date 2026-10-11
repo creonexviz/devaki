@@ -2,7 +2,24 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle2, Phone, Sparkles, User, Mail, MessageSquare, ChevronRight, X, AlertCircle, Scissors, Tag } from 'lucide-react';
 import { subscribeToSlotCategories, subscribeToSlotBookings, saveSlotBookingToFirebase } from '../services/firebaseService';
+import birthdayThumb from '../assets/slot-thumbnails/birthday-couture.jpg';
+import bridalThumb from '../assets/slot-thumbnails/bridal-couture.jpg';
+import sareeThumb from '../assets/slot-thumbnails/saree-transformation.jpg';
+import bridesmaidThumb from '../assets/slot-thumbnails/bridesmaid-squad.jpg';
 import './SlotBookingPage.css';
+
+const getCategoryThumbnail = (cat) => {
+  if (cat?.image && !cat.image.includes('images.unsplash.com')) {
+    return cat.image;
+  }
+  const id = cat?.id || '';
+  const name = (cat?.name || '').toLowerCase();
+  if (id === 'sc_birthday' || name.includes('birthday')) return birthdayThumb;
+  if (id === 'sc_bridal' || name.includes('bridal')) return bridalThumb;
+  if (id === 'sc_saree' || name.includes('saree')) return sareeThumb;
+  if (id === 'sc_squad' || name.includes('bridesmaid')) return bridesmaidThumb;
+  return birthdayThumb;
+};
 
 // Operational Hours: 9:00 AM - 12:00 PM & 2:00 PM - 6:00 PM (30 min slots)
 const MORNING_SLOTS = [
@@ -236,7 +253,7 @@ const SlotBookingPage = () => {
                 {categories.map((cat) => (
                   <div key={cat.id} className="slot-card">
                     <div className="slot-card__image-wrap">
-                      <img src={cat.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80'} alt={cat.name} className="slot-card__img" />
+                      <img src={getCategoryThumbnail(cat)} alt={cat.name} className="slot-card__img" />
                       <span className="slot-card__badge">
                         {cat.price > 0 ? `Fee: ₹${cat.price.toLocaleString('en-IN')}` : 'Complimentary'}
                       </span>
