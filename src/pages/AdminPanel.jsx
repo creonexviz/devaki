@@ -1241,32 +1241,32 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
       id: 'step_front_neck',
       name: 'Front Neck',
       options: [
-        { id: 'front_round', name: 'Round Neck', label: 'Round Neck', image: null },
-        { id: 'front_vneck', name: 'V-Neck', label: 'V-Neck', image: null }
+        { id: 'front_opt1', name: 'Option 1', label: 'Option 1', image: null },
+        { id: 'front_opt2', name: 'Option 2', label: 'Option 2', image: null }
       ]
     },
     {
       id: 'step_back_neck',
       name: 'Back Neck',
       options: [
-        { id: 'back_square', name: 'Deep Square Back', label: 'Deep Square Back', image: null },
-        { id: 'back_uneck', name: 'U-Neck Back', label: 'U-Neck Back', image: null }
+        { id: 'back_opt1', name: 'Option 1', label: 'Option 1', image: null },
+        { id: 'back_opt2', name: 'Option 2', label: 'Option 2', image: null }
       ]
     },
     {
       id: 'step_sleeves',
       name: 'Sleeves',
       options: [
-        { id: 'elbow', name: 'Elbow Sleeves', label: 'Elbow Sleeves', image: null },
-        { id: 'full', name: 'Full Sleeves', label: 'Full Sleeves', image: null }
+        { id: 'sleeves_opt1', name: 'Option 1', label: 'Option 1', image: null },
+        { id: 'sleeves_opt2', name: 'Option 2', label: 'Option 2', image: null }
       ]
     },
     {
       id: 'step_fabric',
       name: 'Fabric',
       options: [
-        { id: 'cotton_silk', name: 'Pure Cotton Silk', label: 'Pure Cotton Silk', image: null },
-        { id: 'zari_silk', name: 'Zari Weave Silk', label: 'Zari Weave Silk', image: null }
+        { id: 'fabric_opt1', name: 'Option 1', label: 'Option 1', image: null },
+        { id: 'fabric_opt2', name: 'Option 2', label: 'Option 2', image: null }
       ]
     }
   ];
@@ -1303,15 +1303,16 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
   };
 
   const handleAddStep = () => {
-    const newStepId = `step_${Date.now()}`;
+    const ts = Date.now();
+    const newStepId = `step_${ts}`;
     setCustomSteps(prev => [
       ...prev,
       {
         id: newStepId,
         name: 'New Custom Step',
         options: [
-          { id: `opt_${Date.now()}_1`, name: 'Option 1', label: 'Option 1', image: null },
-          { id: `opt_${Date.now()}_2`, name: 'Option 2', label: 'Option 2', image: null }
+          { id: `opt_${ts}_1`, name: 'Option 1', label: 'Option 1', image: null },
+          { id: `opt_${ts + 1}_2`, name: 'Option 2', label: 'Option 2', image: null }
         ]
       }
     ]);

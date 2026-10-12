@@ -7,8 +7,24 @@ import SizeChartModal from './SizeChartModal';
 import './DirectAddToCartModal.css';
 
 const DirectAddToCartModal = ({ product, onClose }) => {
-  // 1. Extract dynamic fabric step options if created in Admin Panel
-  const fabricStep = product?.customizationSteps?.find(
+  // 1. Normalize customizationSteps so every option always has id + name
+  const normalizedSteps = (product?.customizationSteps && Array.isArray(product.customizationSteps))
+    ? product.customizationSteps.map((s, sIdx) => ({
+        id: s.id || `step_${sIdx}`,
+        name: s.name || s.label || `Step ${sIdx + 1}`,
+        options: Array.isArray(s.options)
+          ? s.options.map((o, oIdx) => ({
+              id: o.id || `opt_${sIdx}_${oIdx}`,
+              name: o.name || o.label || `Option ${oIdx + 1}`,
+              label: o.label || o.name || `Option ${oIdx + 1}`,
+              image: o.image || null
+            }))
+          : []
+      }))
+    : [];
+
+  // 2. Find the fabric step by checking for 'fabric' keyword in step name
+  const fabricStep = normalizedSteps.find(
     s => s.name?.toLowerCase().includes('fabric')
   );
 

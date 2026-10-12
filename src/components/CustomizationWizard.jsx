@@ -1,5 +1,5 @@
 // src/components/CustomizationWizard.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, X, Check, Eye, Ruler, AlertTriangle, CheckCircle2, Upload, Camera, Sparkles } from 'lucide-react';
 import {
   FABRIC_OPTIONS, SLEEVE_OPTIONS, FRONT_NECK_OPTIONS, BACK_NECK_OPTIONS,
@@ -90,9 +90,23 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
     }
   ];
 
-  const customizationSteps = (product?.customizationSteps && product.customizationSteps.length > 0)
+  // Always use the LIVE product steps — normalize each option so id/name/label are always set
+  const rawSteps = (product?.customizationSteps && Array.isArray(product.customizationSteps) && product.customizationSteps.length > 0)
     ? product.customizationSteps
     : defaultSteps;
+
+  const customizationSteps = rawSteps.map((s, sIdx) => ({
+    id: s.id || `step_${sIdx}`,
+    name: s.name || s.label || `Step ${sIdx + 1}`,
+    options: Array.isArray(s.options)
+      ? s.options.map((o, oIdx) => ({
+          id: o.id || `opt_${sIdx}_${oIdx}`,
+          name: o.name || o.label || `Option ${oIdx + 1}`,
+          label: o.label || o.name || `Option ${oIdx + 1}`,
+          image: o.image || null
+        }))
+      : []
+  }));
 
   // Active steps titles for wizard header
   const activeStepNames = [
@@ -111,6 +125,22 @@ const CustomizationWizard = ({ product, onRequestSubmit, onClose, isSareeTransfo
     });
     return initial;
   });
+
+  // When product steps update from Firebase (e.g. fabric step re-added),
+  // add missing step defaults without resetting already-made user choices
+  useEffect(() => {
+    setSelectedChoices(prev => {
+      const updated = { ...prev };
+      let changed = false;
+      customizationSteps.forEach(s => {
+        if (!updated[s.id] && s.options && s.options.length > 0) {
+          updated[s.id] = s.options[0].id || s.options[0].name;
+          changed = true;
+        }
+      });
+      return changed ? updated : prev;
+    });
+  }, [product?.customizationSteps]);
 
   const [step, setStep] = useState(0);
   const [fitType, setFitType] = useState('standard');
