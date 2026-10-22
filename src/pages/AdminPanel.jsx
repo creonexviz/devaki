@@ -1548,11 +1548,23 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
             </div>
           </div>
 
-          {/* Buy Price & Stock — only 2 fields */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--sp-3)' }}>
+          {/* 4 Price Tiers & Inventory Row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 'var(--sp-3)' }}>
             <div>
               <label className="admin-label" htmlFor="p-price">Buy Price (₹)</label>
               <input id="p-price" className="admin-input" type="number" required placeholder="2499" value={form.basePrice} onChange={e => setForm(f => ({ ...f, basePrice: e.target.value }))} />
+            </div>
+            <div>
+              <label className="admin-label" htmlFor="p-std-price">Standard Custom (₹)</label>
+              <input id="p-std-price" className="admin-input" type="number" required placeholder="2649" value={form.customStandardPrice} onChange={e => setForm(f => ({ ...f, customStandardPrice: e.target.value }))} />
+            </div>
+            <div>
+              <label className="admin-label" htmlFor="p-custom-price">Custom Fit (₹)</label>
+              <input id="p-custom-price" className="admin-input" type="number" required placeholder="2749" value={form.customMeasurementPrice} onChange={e => setForm(f => ({ ...f, customMeasurementPrice: e.target.value }))} />
+            </div>
+            <div>
+              <label className="admin-label" htmlFor="p-saree-price" style={{ color: 'var(--color-gold)' }}>Saree Custom (₹)</label>
+              <input id="p-saree-price" className="admin-input" type="number" required placeholder="2849" value={form.sareeTransformationPrice} onChange={e => setForm(f => ({ ...f, sareeTransformationPrice: e.target.value }))} style={{ borderColor: 'var(--color-gold)' }} />
             </div>
             <div>
               <label className="admin-label" htmlFor="p-stock">Stock Qty</label>
