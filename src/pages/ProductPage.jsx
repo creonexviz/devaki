@@ -201,12 +201,13 @@ const ProductPage = () => {
                     <p className="purchase-card__price">₹{product.basePrice.toLocaleString('en-IN')}</p>
                     <p className="purchase-card__desc">Buy the design as shown. Select your standard size.</p>
                   </div>
+                  {product.enableCustomizeYours !== false && (
                   <div className="purchase-card purchase-card--custom" onClick={() => setShowCustomize(true)} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && setShowCustomize(true)}>
                     <p className="purchase-card__type">Customize Yours</p>
-                    <p className="purchase-card__price">From ₹{(product.customStandardPrice || 2649).toLocaleString('en-IN')}</p>
                     <p className="purchase-card__desc">Select fabric, neckline &amp; sleeves in interactive steps.</p>
-                    <p className="purchase-card__note">Custom measurements available at ₹{(product.customMeasurementPrice || 2749).toLocaleString('en-IN')}</p>
                   </div>
+                  )}
+                  {product.enableSareeTransformation === true && (
                   <div className="purchase-card purchase-card--saree" onClick={() => setShowSareeModal(true)} style={{ gridColumn: '1 / -1', background: 'linear-gradient(135deg, rgba(197,169,107,0.15), rgba(10,33,70,0.85))', border: '1px solid var(--color-gold)', borderRadius: 'var(--radius-md)', padding: 'var(--sp-4)', cursor: 'pointer' }}>
                     <p className="purchase-card__type" style={{ color: 'var(--color-gold)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
                       <Sparkles size={14} /> Transform Your Saree
@@ -218,6 +219,7 @@ const ProductPage = () => {
                       Customize My Saree into this Style →
                     </button>
                   </div>
+                  )}
                 </>
               )}
             </div>
@@ -260,10 +262,8 @@ const ProductPage = () => {
             setShowAddToCart(true);
           }
         }}
-        onSecondary={() => {
-          setShowCustomize(true);
-        }}
-        secondaryLabel={isSoldOut ? "Request Custom" : "Customize Yours"}
+        onSecondary={product.enableCustomizeYours !== false ? () => { setShowCustomize(true); } : undefined}
+        secondaryLabel={product.enableCustomizeYours !== false ? (isSoldOut ? "Request Custom" : "Customize Yours") : undefined}
       />
 
       {/* Modals */}

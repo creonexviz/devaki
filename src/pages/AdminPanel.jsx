@@ -1284,6 +1284,8 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
     fabricCare: 'Dry clean recommended. Store folded in muslin cloth.',
     shippingInfo: 'Standard orders ship in 5–7 working days. Custom measurement orders ship in 10–14 working days.',
     isActive: true,
+    enableCustomizeYours: true,
+    enableSareeTransformation: false,
   };
 
   const [form, setForm] = useState(initialFormState);
@@ -1389,6 +1391,8 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
       fabricCare: product.fabricCare || 'Dry clean recommended. Store folded in muslin cloth.',
       shippingInfo: product.shippingInfo || 'Standard orders ship in 5–7 working days. Custom measurement orders ship in 10–14 working days.',
       isActive: product.isActive !== false,
+      enableCustomizeYours: product.enableCustomizeYours !== false,
+      enableSareeTransformation: product.enableSareeTransformation === true,
     });
     setImages(
       product.images
@@ -1450,6 +1454,8 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
       fabricCare: form.fabricCare,
       shippingInfo: form.shippingInfo,
       isActive: form.isActive,
+      enableCustomizeYours: form.enableCustomizeYours !== false,
+      enableSareeTransformation: form.enableSareeTransformation === true,
     };
 
     await saveProductToFirebase(productPayload);
@@ -1542,23 +1548,11 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
             </div>
           </div>
 
-          {/* 4 Price Tiers & Inventory Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 'var(--sp-3)' }}>
+          {/* Buy Price & Stock — only 2 fields */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--sp-3)' }}>
             <div>
               <label className="admin-label" htmlFor="p-price">Buy Price (₹)</label>
               <input id="p-price" className="admin-input" type="number" required placeholder="2499" value={form.basePrice} onChange={e => setForm(f => ({ ...f, basePrice: e.target.value }))} />
-            </div>
-            <div>
-              <label className="admin-label" htmlFor="p-std-price">Standard Custom (₹)</label>
-              <input id="p-std-price" className="admin-input" type="number" required placeholder="2649" value={form.customStandardPrice} onChange={e => setForm(f => ({ ...f, customStandardPrice: e.target.value }))} />
-            </div>
-            <div>
-              <label className="admin-label" htmlFor="p-custom-price">Custom Fit (₹)</label>
-              <input id="p-custom-price" className="admin-input" type="number" required placeholder="2749" value={form.customMeasurementPrice} onChange={e => setForm(f => ({ ...f, customMeasurementPrice: e.target.value }))} />
-            </div>
-            <div>
-              <label className="admin-label" htmlFor="p-saree-price" style={{ color: 'var(--color-gold)' }}>Saree Custom (₹)</label>
-              <input id="p-saree-price" className="admin-input" type="number" required placeholder="2849" value={form.sareeTransformationPrice} onChange={e => setForm(f => ({ ...f, sareeTransformationPrice: e.target.value }))} style={{ borderColor: 'var(--color-gold)' }} />
             </div>
             <div>
               <label className="admin-label" htmlFor="p-stock">Stock Qty</label>
@@ -1607,8 +1601,38 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
             </div>
           </div>
 
-          {/* 2. DYNAMIC CUSTOMIZATION STEPS MANAGER */}
+          {/* ── FEATURE TOGGLES ── */}
           <div style={{ background: 'rgba(6,22,40,0.5)', padding: 'var(--sp-4)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(197,169,107,0.2)' }}>
+            <label className="admin-label" style={{ color: 'var(--color-gold)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Sliders size={16} /> Button Options (Customer Page)
+            </label>
+
+            {/* Customize Yours toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: form.enableCustomizeYours ? 'rgba(197,169,107,0.1)' : 'rgba(255,255,255,0.03)', borderRadius: '8px', border: `1px solid ${form.enableCustomizeYours ? 'rgba(197,169,107,0.4)' : 'rgba(255,255,255,0.08)'}`, marginBottom: '10px', cursor: 'pointer' }} onClick={() => setForm(f => ({ ...f, enableCustomizeYours: !f.enableCustomizeYours }))}>
+              <div>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: '12px', color: form.enableCustomizeYours ? 'var(--color-gold)' : 'rgba(250,247,242,0.6)' }}>✦ Customize Yours</p>
+                <p style={{ margin: '2px 0 0', fontSize: '10px', color: 'rgba(250,247,242,0.45)' }}>Enables the interactive step-by-step customization wizard</p>
+              </div>
+              <div style={{ width: 40, height: 22, borderRadius: 12, background: form.enableCustomizeYours ? '#0A2146' : 'rgba(255,255,255,0.1)', border: `2px solid ${form.enableCustomizeYours ? 'var(--color-gold)' : 'rgba(255,255,255,0.2)'}`, position: 'relative', flexShrink: 0, transition: 'all 0.2s' }}>
+                <div style={{ position: 'absolute', top: 2, left: form.enableCustomizeYours ? 18 : 2, width: 14, height: 14, borderRadius: '50%', background: form.enableCustomizeYours ? 'var(--color-gold)' : 'rgba(255,255,255,0.4)', transition: 'left 0.2s' }} />
+              </div>
+            </div>
+
+            {/* Saree Transformation toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: form.enableSareeTransformation ? 'rgba(197,169,107,0.1)' : 'rgba(255,255,255,0.03)', borderRadius: '8px', border: `1px solid ${form.enableSareeTransformation ? 'rgba(197,169,107,0.4)' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer' }} onClick={() => setForm(f => ({ ...f, enableSareeTransformation: !f.enableSareeTransformation }))}>
+              <div>
+                <p style={{ margin: 0, fontWeight: 700, fontSize: '12px', color: form.enableSareeTransformation ? 'var(--color-gold)' : 'rgba(250,247,242,0.6)' }}>✦ Saree Transformation</p>
+                <p style={{ margin: '2px 0 0', fontSize: '10px', color: 'rgba(250,247,242,0.45)' }}>Enables "Transform Your Saree" button on product page</p>
+              </div>
+              <div style={{ width: 40, height: 22, borderRadius: 12, background: form.enableSareeTransformation ? '#0A2146' : 'rgba(255,255,255,0.1)', border: `2px solid ${form.enableSareeTransformation ? 'var(--color-gold)' : 'rgba(255,255,255,0.2)'}`, position: 'relative', flexShrink: 0, transition: 'all 0.2s' }}>
+                <div style={{ position: 'absolute', top: 2, left: form.enableSareeTransformation ? 18 : 2, width: 14, height: 14, borderRadius: '50%', background: form.enableSareeTransformation ? 'var(--color-gold)' : 'rgba(255,255,255,0.4)', transition: 'left 0.2s' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* 2. DYNAMIC CUSTOMIZATION STEPS MANAGER — only when Customize Yours is ON */}
+          {form.enableCustomizeYours && (
+          <div style={{ background: 'rgba(6,22,40,0.5)', padding: 'var(--sp-4)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(197,169,107,0.35)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
               <div>
                 <label className="admin-label" style={{ color: 'var(--color-gold)', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1667,7 +1691,7 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
 
                   {/* Options Grid for this step */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 'var(--sp-3)' }}>
-                    {stepItem.options.map(opt => {
+                    {stepItem.options.map((opt, optIdx) => {
                       const optLabel = opt.name || opt.label || '';
                       return (
                         <div key={opt.id} style={{ background: 'rgba(0,0,0,0.2)', padding: '8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -1704,7 +1728,8 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
                               </div>
                             ) : (
                               <div style={{ textAlign: 'center', fontSize: '9px', color: 'rgba(250,247,242,0.4)', padding: '10px' }}>
-                                <Upload size={12} /> Upload Photo
+                                <Upload size={12} />
+                                <div style={{ marginTop: '4px', fontSize: '9px', color: 'var(--color-gold-dim)', fontWeight: 600 }}>Option {optIdx + 1}</div>
                               </div>
                             )}
                           </label>
@@ -1716,6 +1741,7 @@ const ProductsTab = ({ triggerToast, askConfirm, editingProduct, onClearEditing 
               ))}
             </div>
           </div>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <input
